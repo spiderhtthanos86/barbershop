@@ -8,40 +8,23 @@ import AdminPanel from './components/AdminPanel';
 import LoginScreen from './components/LoginScreen';
 import CustomerHistory from './components/CustomerHistory';
 
+// Import Firestore database reference and SDK methods
+import { db } from './firebase';
+import { 
+  collection, 
+  doc, 
+  onSnapshot, 
+  setDoc, 
+  updateDoc, 
+  deleteDoc, 
+  addDoc, 
+  getDocs, 
+  query, 
+  orderBy 
+} from 'firebase/firestore';
+
 import './index.css';
 import './styles/components.css';
-
-// Initial pre-populated default barbers/chairs
-const DEFAULT_BARBERS = [
-  { id: 'alex', name: 'Alex Rivers', specialty: 'Classic Cuts & Fades', status: 'active', customer: null, startTime: null },
-  { id: 'sam', name: 'Sam Thorne', specialty: 'Beards & Hot Shaves', status: 'active', customer: null, startTime: null },
-  { id: 'jordan', name: 'Jordan Vance', specialty: 'Modern Styling', status: 'active', customer: null, startTime: null }
-];
-
-// Simplified initial queue with some specific & some shared next available clients
-const INITIAL_QUEUE = [
-  {
-    id: 'c-1',
-    name: 'Marcus Aurelius',
-    preferredBarberId: 'alex',
-    preferredBarberName: 'Alex Rivers',
-    createdAt: new Date(Date.now() - 1000 * 60 * 15).toISOString()
-  },
-  {
-    id: 'c-2',
-    name: 'Cleopatra VII',
-    preferredBarberId: 'any',
-    preferredBarberName: 'Next Available',
-    createdAt: new Date(Date.now() - 1000 * 60 * 5).toISOString()
-  },
-  {
-    id: 'c-3',
-    name: 'Julius Caesar',
-    preferredBarberId: 'sam',
-    preferredBarberName: 'Sam Thorne',
-    createdAt: new Date(Date.now() - 1000 * 60 * 2).toISOString()
-  }
-];
 
 // Helper to synthesize premium sound effects using browser Web Audio API
 const playSynthesizedSound = (type, enabled) => {
@@ -123,50 +106,126 @@ export default function App() {
   const [myTicketId, setMyTicketId] = useState(localStorage.getItem('myTicketId') || '');
 
   // Authentication View Controller
-  // View states: 'customer' (default waitlist), 'login' (staff credential portal), 'owner' (control panel dashboard)
   const [currentView, setCurrentView] = useState(() => {
     const savedAuth = localStorage.getItem('trimtime_auth');
     return savedAuth === 'true' ? 'owner' : 'customer';
   });
 
-  // Persistent State Collections
-  const [barbers, setBarbers] = useState(() => {
-    const saved = localStorage.getItem('trimtime_barbers');
-    if (saved) return JSON.parse(saved);
-    
-    const initialBarbers = [...DEFAULT_BARBERS];
-    initialBarbers[0].customer = { name: 'Leonidas of Sparta' };
-    initialBarbers[0].startTime = new Date(Date.now() - 1000 * 60 * 18).toISOString();
+  // Database-Backed States
+  const [barbers, setBarbers] = useState([]);
+  const [queue, setQueue] = useState([]);
+  const [history, setHistory] = useState([]);
 
-    initialBarbers[1].customer = { name: 'Alexander The Great' };
-    initialBarbers[1].startTime = new Date(Date.now() - 1000 * 60 * 8).toISOString();
-    
-    return initialBarbers;
-  });
-
-  const [queue, setQueue] = useState(() => {
-    const saved = localStorage.getItem('trimtime_queue');
-    return saved ? JSON.parse(saved) : INITIAL_QUEUE;
-  });
-
-  const [history, setHistory] = useState(() => {
-    const saved = localStorage.getItem('trimtime_history');
-    return saved ? JSON.parse(saved) : [];
-  });
-
-  // LocalStorage Persistors
+  // 1. Subscribe to Barbers/Chairs Collection (Real-Time)
   useEffect(() => {
-    localStorage.setItem('trimtime_barbers', JSON.stringify(barbers));
-  }, [barbers]);
+    const q = query(collection(db, 'barbers'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const list = [];
+      snapshot.forEach(doc => {
+        list.push({ id: doc.id, ...doc.data() });
+      });
+      // Sort styling stations by order key
+      list.sort((a, b) => (a.order || 0) - (b.order || 0));
+      setBarbers(list);
+    }, (error) => {
+      console.warn("Firestore connection inactive (using local mock fallback):", error);
+    });
+    return () => unsubscribe();
+  }, []);
 
+  // 2. Subscribe to Queue Waitlist Collection (Real-Time)
   useEffect(() => {
-    localStorage.setItem('trimtime_queue', JSON.stringify(queue));
-  }, [queue]);
+    const q = query(collection(db, 'queue'), orderBy('createdAt', 'asc'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const list = [];
+      snapshot.forEach(doc => {
+        list.push({ id: doc.id, ...doc.data() });
+      });
+      setQueue(list);
+    }, (error) => {
+      console.warn("Queue stream inactive:", error);
+    });
+    return () => unsubscribe();
+  }, []);
 
+  // 3. Subscribe to Completed Cuts History Collection (Real-Time)
   useEffect(() => {
-    localStorage.setItem('trimtime_history', JSON.stringify(history));
-  }, [history]);
+    const q = query(collection(db, 'history'), orderBy('completedAt', 'asc'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const list = [];
+      snapshot.forEach(doc => {
+        list.push({ id: doc.id, ...doc.data() });
+      });
+      setHistory(list);
+    }, (error) => {
+      console.warn("History stream inactive:", error);
+    });
+    return () => unsubscribe();
+  }, []);
 
+  // 4. Auto-Seeding Database on Initial Connection (If Collections are Empty)
+  useEffect(() => {
+    const seedDatabase = async () => {
+      try {
+        const barbersSnap = await getDocs(collection(db, 'barbers'));
+        if (barbersSnap.empty) {
+          // Initialize default barbers
+          await setDoc(doc(db, 'barbers', 'alex'), {
+            name: 'Alex Rivers',
+            specialty: 'Classic Cuts & Fades',
+            status: 'active',
+            customer: { name: 'Leonidas of Sparta' },
+            startTime: new Date(Date.now() - 1000 * 60 * 18).toISOString(),
+            order: 1
+          });
+          await setDoc(doc(db, 'barbers', 'sam'), {
+            name: 'Sam Thorne',
+            specialty: 'Beards & Hot Shaves',
+            status: 'active',
+            customer: { name: 'Alexander The Great' },
+            startTime: new Date(Date.now() - 1000 * 60 * 8).toISOString(),
+            order: 2
+          });
+          await setDoc(doc(db, 'barbers', 'jordan'), {
+            name: 'Jordan Vance',
+            specialty: 'Modern Styling',
+            status: 'active',
+            customer: null,
+            startTime: null,
+            order: 3
+          });
+        }
+
+        const queueSnap = await getDocs(collection(db, 'queue'));
+        if (queueSnap.empty) {
+          // Initialize default queue
+          await setDoc(doc(db, 'queue', 'c-1'), {
+            name: 'Marcus Aurelius',
+            preferredBarberId: 'alex',
+            preferredBarberName: 'Alex Rivers',
+            createdAt: new Date(Date.now() - 1000 * 60 * 15).toISOString()
+          });
+          await setDoc(doc(db, 'queue', 'c-2'), {
+            name: 'Cleopatra VII',
+            preferredBarberId: 'any',
+            preferredBarberName: 'Next Available',
+            createdAt: new Date(Date.now() - 1000 * 60 * 5).toISOString()
+          });
+          await setDoc(doc(db, 'queue', 'c-3'), {
+            name: 'Julius Caesar',
+            preferredBarberId: 'sam',
+            preferredBarberName: 'Sam Thorne',
+            createdAt: new Date(Date.now() - 1000 * 60 * 2).toISOString()
+          });
+        }
+      } catch (err) {
+        console.warn("Auto-seeding skipped. This is normal if you haven't replaced the placeholder keys in firebase.js yet.", err);
+      }
+    };
+    seedDatabase();
+  }, []);
+
+  // Sync myTicketId with localStorage
   useEffect(() => {
     if (myTicketId) {
       localStorage.setItem('myTicketId', myTicketId);
@@ -174,47 +233,6 @@ export default function App() {
       localStorage.removeItem('myTicketId');
     }
   }, [myTicketId]);
-
-
-  // AUTO-SEATING SCHEDULER
-  useEffect(() => {
-    if (!isShopOpen) return;
-
-    let queueChanged = false;
-    const updatedBarbers = barbers.map(barber => {
-      if (barber.customer || barber.status === 'break') return barber;
-
-      const sortedQueue = [...queue].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
-      const nextCustomer = sortedQueue.find(customer => 
-        customer.preferredBarberId === 'any' || customer.preferredBarberId === barber.id
-      );
-
-      if (nextCustomer) {
-        const seatedCustomer = nextCustomer;
-        
-        const targetIdx = queue.findIndex(c => c.id === seatedCustomer.id);
-        if (targetIdx !== -1) {
-          queue.splice(targetIdx, 1);
-          queueChanged = true;
-        }
-
-        playSynthesizedSound('chime', soundEnabled);
-
-        return {
-          ...barber,
-          customer: seatedCustomer,
-          startTime: new Date().toISOString()
-        };
-      }
-
-      return barber;
-    });
-
-    if (queueChanged) {
-      setBarbers(updatedBarbers);
-      setQueue([...queue]);
-    }
-  }, [queue, barbers, isShopOpen, soundEnabled]);
 
 
   // AUTHENTICATION CONTROLS
@@ -231,107 +249,237 @@ export default function App() {
   };
 
 
-  // DATA ACTION HANDLERS
+  // FIREBASE WRITE TRANSACTION HANDLERS
 
-  const handleJoinQueue = (customerData) => {
-    const newCustomer = {
-      id: `c-${Date.now()}`,
-      name: customerData.name,
-      preferredBarberId: customerData.preferredBarberId,
-      preferredBarberName: customerData.preferredBarberName,
-      createdAt: new Date().toISOString()
-    };
+  // Add client to the queue (seating them immediately if an eligible chair is open)
+  const handleJoinQueue = async (customerData) => {
+    try {
+      if (isShopOpen) {
+        // Scan for active, vacant chairs that fit customer preference
+        const freeBarber = barbers.find(b => 
+          b.status === 'active' && 
+          !b.customer && 
+          (customerData.preferredBarberId === 'any' || customerData.preferredBarberId === b.id)
+        );
 
-    setQueue([...queue, newCustomer]);
-    setMyTicketId(newCustomer.id);
-    setIsJoinModalOpen(false);
-    playSynthesizedSound('chime', soundEnabled);
-  };
+        if (freeBarber) {
+          // Seat immediately
+          await updateDoc(doc(db, 'barbers', freeBarber.id), {
+            customer: { name: customerData.name },
+            startTime: new Date().toISOString()
+          });
+          playSynthesizedSound('chime', soundEnabled);
+          return;
+        }
+      }
 
-  const handleRemoveFromQueue = (customerId) => {
-    setQueue(queue.filter(c => c.id !== customerId));
-    if (customerId === myTicketId) {
-      setMyTicketId('');
+      // No vacant chairs or shop paused: write to waitlist queue collection
+      const clientId = `c-${Date.now()}`;
+      await setDoc(doc(db, 'queue', clientId), {
+        name: customerData.name,
+        preferredBarberId: customerData.preferredBarberId,
+        preferredBarberName: customerData.preferredBarberName,
+        createdAt: new Date().toISOString()
+      });
+
+      setMyTicketId(clientId);
+      playSynthesizedSound('chime', soundEnabled);
+    } catch (err) {
+      console.error("Firestore Write Failed:", err);
     }
   };
 
-  const handleCompleteCut = (chairId) => {
-    const activeChair = barbers.find(b => b.id === chairId);
-    if (!activeChair || !activeChair.customer) return;
-
-    playSynthesizedSound('snip', soundEnabled);
-
-    const completedSession = {
-      customerName: activeChair.customer.name,
-      barberName: activeChair.name,
-      completedAt: new Date().toISOString()
-    };
-
-    setHistory(prevHistory => [...prevHistory, completedSession]);
-
-    const updatedBarbers = barbers.map(barber => {
-      if (barber.id === chairId) {
-        return { ...barber, customer: null, startTime: null };
+  // Remove client from waitlist
+  const handleRemoveFromQueue = async (customerId) => {
+    try {
+      await deleteDoc(doc(db, 'queue', customerId));
+      if (customerId === myTicketId) {
+        setMyTicketId('');
       }
-      return barber;
-    });
-
-    setBarbers(updatedBarbers);
-  };
-
-  const handleToggleBreak = (chairId) => {
-    const updatedBarbers = barbers.map(barber => {
-      if (barber.id === chairId && !barber.customer) {
-        const nextStatus = barber.status === 'break' ? 'active' : 'break';
-        return { ...barber, status: nextStatus };
-      }
-      return barber;
-    });
-    setBarbers(updatedBarbers);
-  };
-
-  const handleAddBarber = (barberData) => {
-    const newBarber = {
-      id: `b-${Date.now()}`,
-      name: barberData.name,
-      specialty: barberData.specialty,
-      status: 'active',
-      customer: null,
-      startTime: null
-    };
-    setBarbers([...barbers, newBarber]);
-  };
-
-  const handleRemoveBarber = (barberId) => {
-    const target = barbers.find(b => b.id === barberId);
-    if (!target || target.customer) return;
-
-    // Reroute specific queue lists
-    setBarbers(barbers.filter(b => b.id !== barberId));
-
-    const updatedQueue = queue.map(customer => {
-      if (customer.preferredBarberId === barberId) {
-        return {
-          ...customer,
-          preferredBarberId: 'any',
-          preferredBarberName: 'Next Available'
-        };
-      }
-      return customer;
-    });
-    setQueue(updatedQueue);
-  };
-
-  const handleClearQueue = () => {
-    if (window.confirm("Are you sure you want to clear the entire waitlist?")) {
-      setQueue([]);
-      setMyTicketId('');
+    } catch (err) {
+      console.error("Firestore Delete Failed:", err);
     }
   };
 
-  const handleResetStats = () => {
-    if (window.confirm("Are you sure you want to reset all completed services history logs?")) {
-      setHistory([]);
+  // Complete Cut (Checkout current customer and automatically pull next eligible waitlist doc)
+  const handleCompleteCut = async (chairId) => {
+    try {
+      const activeChair = barbers.find(b => b.id === chairId);
+      if (!activeChair || !activeChair.customer) return;
+
+      playSynthesizedSound('snip', soundEnabled);
+
+      // 1. Log completed haircut in history
+      await addDoc(collection(db, 'history'), {
+        customerName: activeChair.customer.name,
+        barberName: activeChair.name,
+        completedAt: new Date().toISOString()
+      });
+
+      // 2. Scan waitlist queue for next eligible client
+      let seatedCustomer = null;
+      let targetClientId = null;
+
+      if (isShopOpen) {
+        // Waitlist is already sorted chronologically via query subscription
+        const nextCustomerDoc = queue.find(c => 
+          c.preferredBarberId === 'any' || c.preferredBarberId === chairId
+        );
+        if (nextCustomerDoc) {
+          seatedCustomer = { name: nextCustomerDoc.name };
+          targetClientId = nextCustomerDoc.id;
+        }
+      }
+
+      // 3. Update styling chair state (seat new customer or vacate)
+      await updateDoc(doc(db, 'barbers', chairId), {
+        customer: seatedCustomer,
+        startTime: seatedCustomer ? new Date().toISOString() : null
+      });
+
+      // 4. Delete client document from the waitlist
+      if (targetClientId) {
+        await deleteDoc(doc(db, 'queue', targetClientId));
+        playSynthesizedSound('chime', soundEnabled);
+      }
+    } catch (err) {
+      console.error("Firestore Complete Session Transaction Failed:", err);
+    }
+  };
+
+  // Toggle barber break status (automatically seats waiting client if switching to active)
+  const handleToggleBreak = async (chairId) => {
+    try {
+      const barber = barbers.find(b => b.id === chairId);
+      if (!barber || barber.customer) return;
+
+      const nextStatus = barber.status === 'break' ? 'active' : 'break';
+      let seatedCustomer = null;
+      let targetClientId = null;
+
+      // If returning from break, check if we can seat a client instantly
+      if (nextStatus === 'active' && isShopOpen) {
+        const nextCustomerDoc = queue.find(c => 
+          c.preferredBarberId === 'any' || c.preferredBarberId === chairId
+        );
+        if (nextCustomerDoc) {
+          seatedCustomer = { name: nextCustomerDoc.name };
+          targetClientId = nextCustomerDoc.id;
+        }
+      }
+
+      // Update barber break state
+      await updateDoc(doc(db, 'barbers', chairId), {
+        status: nextStatus,
+        customer: seatedCustomer,
+        startTime: seatedCustomer ? new Date().toISOString() : null
+      });
+
+      // Remove from waitlist
+      if (targetClientId) {
+        await deleteDoc(doc(db, 'queue', targetClientId));
+        playSynthesizedSound('chime', soundEnabled);
+      }
+    } catch (err) {
+      console.error("Firestore Toggle Break Failed:", err);
+    }
+  };
+
+  // Toggle Auto-Seating (automatically seats waiting clients when turned ON)
+  const handleToggleShopOpen = async () => {
+    const nextShopState = !isShopOpen;
+    setIsShopOpen(nextShopState);
+
+    if (nextShopState) {
+      // Seating Sweep: check if any vacant active barbers can seat waiting clients
+      try {
+        let currentQueue = [...queue];
+        for (const barber of barbers) {
+          if (barber.status === 'active' && !barber.customer) {
+            const nextIdx = currentQueue.findIndex(c => 
+              c.preferredBarberId === 'any' || c.preferredBarberId === barber.id
+            );
+            if (nextIdx !== -1) {
+              const customerToSeat = currentQueue[nextIdx];
+              currentQueue.splice(nextIdx, 1);
+
+              // Seat in database
+              await updateDoc(doc(db, 'barbers', barber.id), {
+                customer: { name: customerToSeat.name },
+                startTime: new Date().toISOString()
+              });
+              await deleteDoc(doc(db, 'queue', customerToSeat.id));
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Firestore Resume Seating Sweep Failed:", err);
+      }
+    }
+  };
+
+  // Add custom styling chair
+  const handleAddBarber = async (barberData) => {
+    try {
+      const id = `b-${Date.now()}`;
+      await setDoc(doc(db, 'barbers', id), {
+        name: barberData.name,
+        specialty: barberData.specialty,
+        status: 'active',
+        customer: null,
+        startTime: null,
+        order: barbers.length + 1
+      });
+    } catch (err) {
+      console.error("Firestore Add Chair Failed:", err);
+    }
+  };
+
+  // Delete styling chair (converts Jordan-specific lines to Next Available)
+  const handleRemoveBarber = async (barberId) => {
+    try {
+      const target = barbers.find(b => b.id === barberId);
+      if (!target || target.customer) return;
+
+      // Delete chair
+      await deleteDoc(doc(db, 'barbers', barberId));
+
+      // Re-route waiting clients
+      for (const customer of queue) {
+        if (customer.preferredBarberId === barberId) {
+          await updateDoc(doc(db, 'queue', customer.id), {
+            preferredBarberId: 'any',
+            preferredBarberName: 'Next Available'
+          });
+        }
+      }
+    } catch (err) {
+      console.error("Firestore Remove Chair Failed:", err);
+    }
+  };
+
+  // Empty the waitlist collection
+  const handleClearQueue = async () => {
+    if (!window.confirm("Are you sure you want to clear the entire waitlist?")) return;
+    try {
+      for (const customer of queue) {
+        await deleteDoc(doc(db, 'queue', customer.id));
+      }
+      setMyTicketId('');
+    } catch (err) {
+      console.error("Firestore Clear Queue Failed:", err);
+    }
+  };
+
+  // Reset Completed cuts history log
+  const handleResetStats = async () => {
+    if (!window.confirm("Are you sure you want to reset all completed services history logs?")) return;
+    try {
+      for (const item of history) {
+        await deleteDoc(doc(db, 'history', item.id));
+      }
+    } catch (err) {
+      console.error("Firestore Reset History Failed:", err);
     }
   };
 
@@ -376,16 +524,16 @@ export default function App() {
             />
           </main>
 
-          {/* Customer History Log Panel - Visible strictly in customer landing view */}
+          {/* Customer History Log Panel */}
           {currentView === 'customer' && (
             <CustomerHistory history={history} />
           )}
 
-          {/* Owner Dashboard Control Center - Only visible in authenticated 'owner' mode */}
+          {/* Owner Dashboard Control Center */}
           {currentView === 'owner' && (
             <AdminPanel
               isShopOpen={isShopOpen}
-              toggleShopOpen={() => setIsShopOpen(!isShopOpen)}
+              toggleShopOpen={handleToggleShopOpen}
               onResetStats={handleResetStats}
               onClearQueue={handleClearQueue}
               onAddBarber={handleAddBarber}
@@ -395,7 +543,7 @@ export default function App() {
             />
           )}
 
-          {/* Customer Ticket Reservation Modal (Triggered by Shop Owner in Owner View) */}
+          {/* Customer Ticket Reservation Modal */}
           <JoinQueueModal
             isOpen={isJoinModalOpen}
             onClose={() => setIsJoinModalOpen(false)}
