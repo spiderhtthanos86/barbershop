@@ -104,6 +104,7 @@ export default function App() {
   const [isShopOpen, setIsShopOpen] = useState(true);
   const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
   const [myTicketId, setMyTicketId] = useState(localStorage.getItem('myTicketId') || '');
+  const [trackName, setTrackName] = useState(localStorage.getItem('trimtime_track_name') || '');
 
   // Authentication View Controller
   const [currentView, setCurrentView] = useState(() => {
@@ -174,7 +175,7 @@ export default function App() {
             name: 'Alex Rivers',
             specialty: 'Classic Cuts & Fades',
             status: 'active',
-            customer: { name: 'Leonidas of Sparta' },
+            customer: { name: 'Leonidas of Sparta', cost: 150 },
             startTime: new Date(Date.now() - 1000 * 60 * 18).toISOString(),
             order: 1
           });
@@ -182,7 +183,7 @@ export default function App() {
             name: 'Sam Thorne',
             specialty: 'Beards & Hot Shaves',
             status: 'active',
-            customer: { name: 'Alexander The Great' },
+            customer: { name: 'Alexander The Great', cost: 200 },
             startTime: new Date(Date.now() - 1000 * 60 * 8).toISOString(),
             order: 2
           });
@@ -203,18 +204,21 @@ export default function App() {
             name: 'Marcus Aurelius',
             preferredBarberId: 'alex',
             preferredBarberName: 'Alex Rivers',
+            cost: 150,
             createdAt: new Date(Date.now() - 1000 * 60 * 15).toISOString()
           });
           await setDoc(doc(db, 'queue', 'c-2'), {
             name: 'Cleopatra VII',
             preferredBarberId: 'any',
             preferredBarberName: 'Next Available',
+            cost: 100,
             createdAt: new Date(Date.now() - 1000 * 60 * 5).toISOString()
           });
           await setDoc(doc(db, 'queue', 'c-3'), {
             name: 'Julius Caesar',
             preferredBarberId: 'sam',
             preferredBarberName: 'Sam Thorne',
+            cost: 120,
             createdAt: new Date(Date.now() - 1000 * 60 * 2).toISOString()
           });
         }
@@ -254,6 +258,10 @@ export default function App() {
   // Add client to the queue (seating them immediately if an eligible chair is open)
   const handleJoinQueue = async (customerData) => {
     try {
+      // Auto-set the tracking name for the user
+      setTrackName(customerData.name);
+      localStorage.setItem('trimtime_track_name', customerData.name);
+
       if (isShopOpen) {
         // Scan for active, vacant chairs that fit customer preference
         const freeBarber = barbers.find(b => 
@@ -265,7 +273,10 @@ export default function App() {
         if (freeBarber) {
           // Seat immediately
           await updateDoc(doc(db, 'barbers', freeBarber.id), {
-            customer: { name: customerData.name },
+            customer: { 
+              name: customerData.name,
+              cost: Number(customerData.cost) || 0
+            },
             startTime: new Date().toISOString()
           });
           playSynthesizedSound('chime', soundEnabled);
@@ -279,6 +290,7 @@ export default function App() {
         name: customerData.name,
         preferredBarberId: customerData.preferredBarberId,
         preferredBarberName: customerData.preferredBarberName,
+        cost: Number(customerData.cost) || 0,
         createdAt: new Date().toISOString()
       });
 
@@ -312,7 +324,9 @@ export default function App() {
       // 1. Log completed haircut in history
       await addDoc(collection(db, 'history'), {
         customerName: activeChair.customer.name,
+        barberId: chairId,
         barberName: activeChair.name,
+        cost: Number(activeChair.customer.cost) || 0,
         completedAt: new Date().toISOString()
       });
 
@@ -326,7 +340,10 @@ export default function App() {
           c.preferredBarberId === 'any' || c.preferredBarberId === chairId
         );
         if (nextCustomerDoc) {
-          seatedCustomer = { name: nextCustomerDoc.name };
+          seatedCustomer = { 
+            name: nextCustomerDoc.name,
+            cost: Number(nextCustomerDoc.cost) || 0
+          };
           targetClientId = nextCustomerDoc.id;
         }
       }
@@ -363,7 +380,10 @@ export default function App() {
           c.preferredBarberId === 'any' || c.preferredBarberId === chairId
         );
         if (nextCustomerDoc) {
-          seatedCustomer = { name: nextCustomerDoc.name };
+          seatedCustomer = { 
+            name: nextCustomerDoc.name,
+            cost: Number(nextCustomerDoc.cost) || 0
+          };
           targetClientId = nextCustomerDoc.id;
         }
       }
@@ -405,7 +425,10 @@ export default function App() {
 
               // Seat in database
               await updateDoc(doc(db, 'barbers', barber.id), {
-                customer: { name: customerToSeat.name },
+                customer: { 
+                  name: customerToSeat.name,
+                  cost: Number(customerToSeat.cost) || 0
+                },
                 startTime: new Date().toISOString()
               });
               await deleteDoc(doc(db, 'queue', customerToSeat.id));
@@ -511,6 +534,30 @@ export default function App() {
             history={history}
           />
 
+          {/* Customer Self-Tracking Input Banner */}
+          {currentView === 'customer' && (
+            <div className="glass-panel" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap', padding: '12px 20px', marginTop: '-8px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <span style={{ fontSize: '20px' }}>🔍</span>
+                <div>
+                  <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-gold)' }}>Track Your Turn Live</div>
+                  <div style={{ fontSize: '11px', color: 'var(--color-text-secondary)' }}>Enter your name to highlight your ticket in the queues below</div>
+                </div>
+              </div>
+              <input
+                type="text"
+                className="form-input"
+                style={{ maxWidth: '280px', padding: '8px 12px', fontSize: '13px' }}
+                placeholder="Enter your name..."
+                value={trackName}
+                onChange={(e) => {
+                  setTrackName(e.target.value);
+                  localStorage.setItem('trimtime_track_name', e.target.value);
+                }}
+              />
+            </div>
+          )}
+
           {/* Primary Main Stations viewport */}
           <main style={{ width: '100%' }}>
             <ActiveChairs
@@ -521,6 +568,7 @@ export default function App() {
               queue={queue}
               onRemoveFromQueue={handleRemoveFromQueue}
               myTicketId={myTicketId}
+              trackName={trackName}
             />
           </main>
 
@@ -548,6 +596,7 @@ export default function App() {
             isOpen={isJoinModalOpen}
             onClose={() => setIsJoinModalOpen(false)}
             barbers={barbers}
+            queue={queue}
             onJoinQueue={handleJoinQueue}
           />
         </>

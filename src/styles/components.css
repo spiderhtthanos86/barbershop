@@ -796,3 +796,20 @@ button:active, .tab-pill:active, .icon-btn:active {
 .history-details {
   color: var(--color-text-secondary);
 }
+
+/* Responsive visibility layout modifiers */
+.desktop-layout {
+  display: block;
+}
+.mobile-layout {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .desktop-layout {
+    display: none;
+  }
+  .mobile-layout {
+    display: block;
+  }
+}
