@@ -36,7 +36,7 @@ function ChairCard({ chair, isAdmin, onCompleteCut, onToggleBreak }) {
   };
 
   return (
-    <div className={`glass-panel chair-card ${customer ? 'occupied glow-active' : 'empty'}`} style={{ minHeight: '200px', margin: 0 }}>
+    <div className={`glass-panel chair-card ${customer ? 'occupied glow-active' : 'empty'}`} style={{ minHeight: '190px', margin: 0 }}>
       <div className="chair-header">
         <div className="barber-info">
           <div className="barber-avatar-container">
@@ -74,36 +74,22 @@ function ChairCard({ chair, isAdmin, onCompleteCut, onToggleBreak }) {
               {customer.name}
             </div>
 
-            {/* Live Elapsed Serving Stopwatch & Cost Row */}
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '4px', flexWrap: 'wrap' }}>
-              {/* Serving cost */}
-              <div style={{ 
-                background: 'rgba(16, 185, 129, 0.1)', 
-                border: '1px solid rgba(16, 185, 129, 0.2)', 
-                color: 'var(--color-accent-green)',
-                fontSize: '11px',
-                fontWeight: 800,
-                padding: '2px 8px',
-                borderRadius: '4px'
-              }}>
-                ₹ {customer.cost || 0}
-              </div>
-
-              {/* Stopwatch */}
-              <div style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: '4px', 
-                background: 'rgba(255, 255, 255, 0.04)',
-                border: '1px solid var(--border-light)',
-                padding: '2px 8px',
-                borderRadius: '4px'
-              }}>
-                <Clock size={10} className="text-gold" style={{ opacity: 0.8 }} />
-                <span style={{ fontSize: '10px', fontWeight: 650, color: 'var(--color-text-secondary)' }}>
-                  {formatStopwatch(elapsedSeconds)}
-                </span>
-              </div>
+            {/* Live Elapsed Serving Stopwatch - Visible to BOTH Customer and Owner! */}
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '6px', 
+              marginTop: '4px',
+              background: 'rgba(255, 255, 255, 0.04)',
+              border: '1px solid var(--border-light)',
+              padding: '4px 10px',
+              borderRadius: '6px',
+              width: 'fit-content'
+            }}>
+              <Clock size={12} className="text-gold" style={{ opacity: 0.8 }} />
+              <span style={{ fontSize: '11px', fontWeight: 650, color: 'var(--color-text-secondary)' }}>
+                Serving: <span style={{ color: 'var(--color-text-primary)', fontFamily: 'monospace', fontSize: '12px' }}>{formatStopwatch(elapsedSeconds)}</span>
+              </span>
             </div>
             
             {/* Prominent Admin Checkout Action Button */}
@@ -174,6 +160,7 @@ export default function ActiveChairs({
         </span>
       </h2>
 
+      {/* Horizontal capsule mobile-first tabs bar - HIDDEN on Laptop/Desktop screens via CSS! */}
       <div className="mobile-tab-bar">
         <button 
           className={`tab-pill ${activeTab === 'all' ? 'active' : ''}`}
@@ -192,12 +179,19 @@ export default function ActiveChairs({
         ))}
       </div>
 
+      {/* 
+        Parent Stations Grid.
+        Includes a tab-active-${activeTab} class to let pure CSS hide columns on Mobile, 
+        while Laptop screens show all columns side-by-side simultaneously!
+      */}
       <div className={`stations-grid-container tab-active-${activeTab}`}>
         {chairs.map((chair, index) => {
+          // Filter waitlist for this specific barber OR next available ('any')
           const chairQueue = queue
             .filter(c => c.preferredBarberId === chair.id || c.preferredBarberId === 'any')
-            .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+            .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt)); // Sort chronologically
 
+          // Cycle through color themes (blue, orange, purple) for any added stylists
           const themes = ['theme-blue', 'theme-orange', 'theme-purple'];
           const themeClass = themes[index % themes.length];
           const colClass = `barber-col-${chair.id}`;
@@ -208,6 +202,7 @@ export default function ActiveChairs({
               className={`station-column ${themeClass} ${colClass}`}
               style={{ animation: 'fadeIn 0.3s ease-out' }}
             >
+              {/* Styling Chair card */}
               <ChairCard 
                 chair={chair} 
                 isAdmin={isAdmin}
@@ -215,6 +210,7 @@ export default function ActiveChairs({
                 onToggleBreak={onToggleBreak}
               />
 
+              {/* Specific Waitlist Column directly below chair */}
               <div className="glass-panel" style={{ 
                 background: 'var(--bg-secondary)', 
                 borderWidth: '1px',
@@ -277,88 +273,76 @@ export default function ActiveChairs({
                             animation: 'slideInUp 0.25s ease-out'
                           }}
                         >
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'space-between', width: '100%' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                              <div className="queue-position" style={{ width: '24px', height: '24px', fontSize: '12px' }}>
-                                {idx + 1}
-                              </div>
-                              
-                              <div style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                  <span className="queue-customer-name" style={{ fontSize: '13px' }}>
-                                    {customer.name}
-                                  </span>
-                                  {isMyTicket && (
-                                    <span style={{
-                                      background: 'var(--color-gold)',
-                                      color: 'var(--bg-primary)',
-                                      fontSize: '8px',
-                                      fontWeight: 800,
-                                      padding: '1px 3px',
-                                      borderRadius: '2px',
-                                      textTransform: 'uppercase'
-                                    }}>
-                                      You
-                                    </span>
-                                  )}
-                                  {isTracked && !isMyTicket && (
-                                    <span style={{
-                                      background: '#00d2ff',
-                                      color: 'var(--bg-primary)',
-                                      fontSize: '8px',
-                                      fontWeight: 800,
-                                      padding: '1px 4px',
-                                      borderRadius: '2px',
-                                      textTransform: 'uppercase',
-                                      boxShadow: '0 0 6px rgba(0, 210, 255, 0.4)'
-                                    }}>
-                                      You
-                                    </span>
-                                  )}
-                                </div>
-                                
-                                {isShared && (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            {/* Position badge */}
+                            <div className="queue-position" style={{ width: '24px', height: '24px', fontSize: '12px' }}>
+                              {idx + 1}
+                            </div>
+                            
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                <span className="queue-customer-name" style={{ fontSize: '13px' }}>
+                                  {customer.name}
+                                </span>
+                                {isMyTicket && (
                                   <span style={{
-                                    background: 'rgba(245, 158, 11, 0.1)',
-                                    color: 'var(--color-accent-amber)',
-                                    border: '1px solid rgba(245, 158, 11, 0.2)',
-                                    padding: '1px 4px',
-                                    borderRadius: '3px',
-                                    fontSize: '7px',
-                                    fontWeight: 600,
-                                    width: 'fit-content',
+                                    background: 'var(--color-gold)',
+                                    color: 'var(--bg-primary)',
+                                    fontSize: '8px',
+                                    fontWeight: 800,
+                                    padding: '1px 3px',
+                                    borderRadius: '2px',
                                     textTransform: 'uppercase'
                                   }}>
-                                    Next Available
+                                    You
+                                  </span>
+                                )}
+                                {isTracked && !isMyTicket && (
+                                  <span style={{
+                                    background: '#00d2ff',
+                                    color: 'var(--bg-primary)',
+                                    fontSize: '8px',
+                                    fontWeight: 800,
+                                    padding: '1px 4px',
+                                    borderRadius: '2px',
+                                    textTransform: 'uppercase',
+                                    boxShadow: '0 0 6px rgba(0, 210, 255, 0.4)'
+                                  }}>
+                                    You
                                   </span>
                                 )}
                               </div>
-                            </div>
-
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                              <span style={{ 
-                                fontSize: '11px', 
-                                fontWeight: 700, 
-                                color: 'var(--color-accent-green)',
-                                background: 'rgba(16, 185, 129, 0.08)',
-                                padding: '2px 6px',
-                                borderRadius: '4px'
-                              }}>
-                                ₹ {customer.cost || 0}
-                              </span>
-
-                              {isAdmin && (
-                                <button
-                                  className="remove-queue-btn"
-                                  onClick={() => onRemoveFromQueue(customer.id)}
-                                  title="Remove customer"
-                                  style={{ padding: '4px' }}
-                                >
-                                  <Trash2 size={12} />
-                                </button>
+                              
+                              {/* Shared tag */}
+                              {isShared && (
+                                <span style={{
+                                  background: 'rgba(245, 158, 11, 0.1)',
+                                  color: 'var(--color-accent-amber)',
+                                  border: '1px solid rgba(245, 158, 11, 0.2)',
+                                  padding: '1px 4px',
+                                  borderRadius: '3px',
+                                  fontSize: '7px',
+                                  fontWeight: 600,
+                                  width: 'fit-content',
+                                  textTransform: 'uppercase'
+                                }}>
+                                  Next Available
+                                </span>
                               )}
                             </div>
                           </div>
+
+                          {/* Delete actions */}
+                          {isAdmin && (
+                            <button
+                              className="remove-queue-btn"
+                              onClick={() => onRemoveFromQueue(customer.id)}
+                              title="Remove customer"
+                              style={{ padding: '4px' }}
+                            >
+                              <Trash2 size={12} />
+                            </button>
+                          )}
                         </div>
                       );
                     })
@@ -381,4 +365,5 @@ export default function ActiveChairs({
         })}
       </div>
     </section>
+  );
 }
