@@ -6,12 +6,13 @@ import { getFirestore } from 'firebase/firestore';
 // Replace the values below with your specific Firebase Project Config keys from the Firebase Console:
 // Project Settings -> General -> Your Apps -> Web App
 const firebaseConfig = {
-  apiKey: "PLACEHOLDER_API_KEY",
-  authDomain: "barbershop-waiting.firebaseapp.com",
-  projectId: "barbershop-waiting",
-  storageBucket: "barbershop-waiting.appspot.com",
-  messagingSenderId: "123456789012",
-  appId: "1:123456789012:web:abcdef1234567890abcdef"
+  apiKey: "AIzaSyB_zkMBm08kAYKdjwXMxcMi1ih28CB6VLQ",
+  authDomain: "trimtime-waitlist.firebaseapp.com",
+  projectId: "trimtime-waitlist",
+  storageBucket: "trimtime-waitlist.firebasestorage.app",
+  messagingSenderId: "410703913057",
+  appId: "1:410703913057:web:5a803f63cf0f88251cca20",
+  measurementId: "G-SK3KL81QGY"
 };
 
 // Initialize Firebase
