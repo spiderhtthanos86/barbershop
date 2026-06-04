@@ -162,427 +162,223 @@ export default function ActiveChairs({
   // Mobile Capsule Tab Selector: 'all' or specific barber id (Only active on mobile widths via CSS!)
   const [activeTab, setActiveTab] = useState('all');
 
-  // Sort unified list chronologically for mobile customer overview
-  const unifiedQueue = [...queue].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
-
   return (
-    <>
-      {/* 1. Desktop layout (Laptop, iPad Landscape) */}
-      <div className="desktop-layout">
-        <section className="glass-panel" style={{ width: '100%' }}>
-          <h2 className="section-title">
-            <span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <Scissors size={22} className="text-gold" />
-              Styling Stations
-            </span>
-            <span style={{ fontSize: '12px', fontWeight: 500, color: 'var(--color-text-secondary)' }}>
-              {chairs.length} Active Barbers
-            </span>
-          </h2>
+    <section className="glass-panel" style={{ width: '100%' }}>
+      <h2 className="section-title">
+        <span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <Scissors size={22} className="text-gold" />
+          Styling Stations
+        </span>
+        <span style={{ fontSize: '12px', fontWeight: 500, color: 'var(--color-text-secondary)' }}>
+          {chairs.length} Active Barbers
+        </span>
+      </h2>
 
-          <div className="mobile-tab-bar">
-            <button 
-              className={`tab-pill ${activeTab === 'all' ? 'active' : ''}`}
-              onClick={() => setActiveTab('all')}
+      <div className="mobile-tab-bar">
+        <button 
+          className={`tab-pill ${activeTab === 'all' ? 'active' : ''}`}
+          onClick={() => setActiveTab('all')}
+        >
+          All Stations ({chairs.length})
+        </button>
+        {chairs.map(chair => (
+          <button 
+            key={chair.id}
+            className={`tab-pill ${activeTab === chair.id ? 'active' : ''}`}
+            onClick={() => setActiveTab(chair.id)}
+          >
+            {chair.name.split(' ')[0]} ({chair.customer ? 'Busy' : 'Free'})
+          </button>
+        ))}
+      </div>
+
+      <div className={`stations-grid-container tab-active-${activeTab}`}>
+        {chairs.map((chair, index) => {
+          const chairQueue = queue
+            .filter(c => c.preferredBarberId === chair.id || c.preferredBarberId === 'any')
+            .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+
+          const themes = ['theme-blue', 'theme-orange', 'theme-purple'];
+          const themeClass = themes[index % themes.length];
+          const colClass = `barber-col-${chair.id}`;
+
+          return (
+            <div 
+              key={chair.id} 
+              className={`station-column ${themeClass} ${colClass}`}
+              style={{ animation: 'fadeIn 0.3s ease-out' }}
             >
-              All Stations ({chairs.length})
-            </button>
-            {chairs.map(chair => (
-              <button 
-                key={chair.id}
-                className={`tab-pill ${activeTab === chair.id ? 'active' : ''}`}
-                onClick={() => setActiveTab(chair.id)}
-              >
-                {chair.name.split(' ')[0]} ({chair.customer ? 'Busy' : 'Free'})
-              </button>
-            ))}
-          </div>
+              <ChairCard 
+                chair={chair} 
+                isAdmin={isAdmin}
+                onCompleteCut={onCompleteCut}
+                onToggleBreak={onToggleBreak}
+              />
 
-          <div className={`stations-grid-container tab-active-${activeTab}`}>
-            {chairs.map((chair, index) => {
-              const chairQueue = queue
-                .filter(c => c.preferredBarberId === chair.id || c.preferredBarberId === 'any')
-                .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+              <div className="glass-panel" style={{ 
+                background: 'var(--bg-secondary)', 
+                borderWidth: '1px',
+                borderRadius: 'var(--radius-md)', 
+                padding: '12px 14px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '10px',
+                minHeight: '120px'
+              }}>
+                <div style={{ 
+                  display: 'flex', 
+                  justifyContent: 'space-between', 
+                  alignItems: 'center',
+                  borderBottom: '1px solid var(--border-gold)',
+                  paddingBottom: '6px',
+                  marginBottom: '2px'
+                }}>
+                  <span style={{ fontStyle: 'normal', fontWeight: 700, fontSize: '13px', color: 'var(--color-gold)' }}>
+                    {chair.name.split(' ')[0]}'s Waitlist
+                  </span>
+                  <span style={{ fontSize: '10px', color: 'var(--color-text-secondary)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <Users size={11} />
+                    {chairQueue.length} waiting
+                  </span>
+                </div>
 
-              const themes = ['theme-blue', 'theme-orange', 'theme-purple'];
-              const themeClass = themes[index % themes.length];
-              const colClass = `barber-col-${chair.id}`;
+                <div style={{ 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  gap: '6px', 
+                  overflowY: 'auto',
+                  maxHeight: '280px',
+                  paddingRight: '2px'
+                }}>
+                  {chairQueue.length > 0 ? (
+                    chairQueue.map((customer, idx) => {
+                      const isMyTicket = customer.id === myTicketId;
+                      const isTracked = trackName && customer.name.trim().toLowerCase() === trackName.trim().toLowerCase();
+                      const isShared = customer.preferredBarberId === 'any';
 
-              return (
-                <div 
-                  key={chair.id} 
-                  className={`station-column ${themeClass} ${colClass}`}
-                  style={{ animation: 'fadeIn 0.3s ease-out' }}
-                >
-                  <ChairCard 
-                    chair={chair} 
-                    isAdmin={isAdmin}
-                    onCompleteCut={onCompleteCut}
-                    onToggleBreak={onToggleBreak}
-                  />
-
-                  <div className="glass-panel" style={{ 
-                    background: 'var(--bg-secondary)', 
-                    borderWidth: '1px',
-                    borderRadius: 'var(--radius-md)', 
-                    padding: '12px 14px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '10px',
-                    minHeight: '120px'
-                  }}>
-                    <div style={{ 
-                      display: 'flex', 
-                      justifyContent: 'space-between', 
-                      alignItems: 'center',
-                      borderBottom: '1px solid var(--border-gold)',
-                      paddingBottom: '6px',
-                      marginBottom: '2px'
-                    }}>
-                      <span style={{ fontStyle: 'normal', fontWeight: 700, fontSize: '13px', color: 'var(--color-gold)' }}>
-                        {chair.name.split(' ')[0]}'s Waitlist
-                      </span>
-                      <span style={{ fontSize: '10px', color: 'var(--color-text-secondary)', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                        <Users size={11} />
-                        {chairQueue.length} waiting
-                      </span>
-                    </div>
-
-                    <div style={{ 
-                      display: 'flex', 
-                      flexDirection: 'column', 
-                      gap: '6px', 
-                      overflowY: 'auto',
-                      maxHeight: '280px',
-                      paddingRight: '2px'
-                    }}>
-                      {chairQueue.length > 0 ? (
-                        chairQueue.map((customer, idx) => {
-                          const isMyTicket = customer.id === myTicketId;
-                          const isTracked = trackName && customer.name.trim().toLowerCase() === trackName.trim().toLowerCase();
-                          const isShared = customer.preferredBarberId === 'any';
-
-                          return (
-                            <div 
-                              key={customer.id} 
-                              className="queue-item-card"
-                              style={{
-                                padding: '8px 10px',
-                                border: isTracked
-                                  ? '1.5px solid #00d2ff'
-                                  : isMyTicket 
-                                    ? '1.5px solid var(--color-gold)' 
-                                    : isShared 
-                                      ? '1px dashed rgba(255, 255, 255, 0.15)' 
-                                      : '1px solid var(--border-gold)',
-                                boxShadow: isTracked
-                                  ? '0 0 12px rgba(0, 210, 255, 0.25)'
-                                  : isMyTicket 
-                                    ? '0 0 10px rgba(197, 168, 128, 0.1)' 
-                                    : 'none',
-                                animation: 'slideInUp 0.25s ease-out'
-                              }}
-                            >
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'space-between', width: '100%' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                  <div className="queue-position" style={{ width: '24px', height: '24px', fontSize: '12px' }}>
-                                    {idx + 1}
-                                  </div>
-                                  
-                                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                      <span className="queue-customer-name" style={{ fontSize: '13px' }}>
-                                        {customer.name}
-                                      </span>
-                                      {isMyTicket && (
-                                        <span style={{
-                                          background: 'var(--color-gold)',
-                                          color: 'var(--bg-primary)',
-                                          fontSize: '8px',
-                                          fontWeight: 800,
-                                          padding: '1px 3px',
-                                          borderRadius: '2px',
-                                          textTransform: 'uppercase'
-                                        }}>
-                                          You
-                                        </span>
-                                      )}
-                                      {isTracked && !isMyTicket && (
-                                        <span style={{
-                                          background: '#00d2ff',
-                                          color: 'var(--bg-primary)',
-                                          fontSize: '8px',
-                                          fontWeight: 800,
-                                          padding: '1px 4px',
-                                          borderRadius: '2px',
-                                          textTransform: 'uppercase',
-                                          boxShadow: '0 0 6px rgba(0, 210, 255, 0.4)'
-                                        }}>
-                                          You
-                                        </span>
-                                      )}
-                                    </div>
-                                    
-                                    {isShared && (
-                                      <span style={{
-                                        background: 'rgba(245, 158, 11, 0.1)',
-                                        color: 'var(--color-accent-amber)',
-                                        border: '1px solid rgba(245, 158, 11, 0.2)',
-                                        padding: '1px 4px',
-                                        borderRadius: '3px',
-                                        fontSize: '7px',
-                                        fontWeight: 600,
-                                        width: 'fit-content',
-                                        textTransform: 'uppercase'
-                                      }}>
-                                        Next Available
-                                      </span>
-                                    )}
-                                  </div>
-                                </div>
-
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                  <span style={{ 
-                                    fontSize: '11px', 
-                                    fontWeight: 700, 
-                                    color: 'var(--color-accent-green)',
-                                    background: 'rgba(16, 185, 129, 0.08)',
-                                    padding: '2px 6px',
-                                    borderRadius: '4px'
-                                  }}>
-                                    ₹ {customer.cost || 0}
+                      return (
+                        <div 
+                          key={customer.id} 
+                          className="queue-item-card"
+                          style={{
+                            padding: '8px 10px',
+                            border: isTracked
+                              ? '1.5px solid #00d2ff'
+                              : isMyTicket 
+                                ? '1.5px solid var(--color-gold)' 
+                                : isShared 
+                                  ? '1px dashed rgba(255, 255, 255, 0.15)' 
+                                  : '1px solid var(--border-gold)',
+                            boxShadow: isTracked
+                              ? '0 0 12px rgba(0, 210, 255, 0.25)'
+                              : isMyTicket 
+                                ? '0 0 10px rgba(197, 168, 128, 0.1)' 
+                                : 'none',
+                            animation: 'slideInUp 0.25s ease-out'
+                          }}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'space-between', width: '100%' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              <div className="queue-position" style={{ width: '24px', height: '24px', fontSize: '12px' }}>
+                                {idx + 1}
+                              </div>
+                              
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                  <span className="queue-customer-name" style={{ fontSize: '13px' }}>
+                                    {customer.name}
                                   </span>
-
-                                  {isAdmin && (
-                                    <button
-                                      className="remove-queue-btn"
-                                      onClick={() => onRemoveFromQueue(customer.id)}
-                                      title="Remove customer"
-                                      style={{ padding: '4px' }}
-                                    >
-                                      <Trash2 size={12} />
-                                    </button>
+                                  {isMyTicket && (
+                                    <span style={{
+                                      background: 'var(--color-gold)',
+                                      color: 'var(--bg-primary)',
+                                      fontSize: '8px',
+                                      fontWeight: 800,
+                                      padding: '1px 3px',
+                                      borderRadius: '2px',
+                                      textTransform: 'uppercase'
+                                    }}>
+                                      You
+                                    </span>
+                                  )}
+                                  {isTracked && !isMyTicket && (
+                                    <span style={{
+                                      background: '#00d2ff',
+                                      color: 'var(--bg-primary)',
+                                      fontSize: '8px',
+                                      fontWeight: 800,
+                                      padding: '1px 4px',
+                                      borderRadius: '2px',
+                                      textTransform: 'uppercase',
+                                      boxShadow: '0 0 6px rgba(0, 210, 255, 0.4)'
+                                    }}>
+                                      You
+                                    </span>
                                   )}
                                 </div>
+                                
+                                {isShared && (
+                                  <span style={{
+                                    background: 'rgba(245, 158, 11, 0.1)',
+                                    color: 'var(--color-accent-amber)',
+                                    border: '1px solid rgba(245, 158, 11, 0.2)',
+                                    padding: '1px 4px',
+                                    borderRadius: '3px',
+                                    fontSize: '7px',
+                                    fontWeight: 600,
+                                    width: 'fit-content',
+                                    textTransform: 'uppercase'
+                                  }}>
+                                    Next Available
+                                  </span>
+                                )}
                               </div>
                             </div>
-                          );
-                        })
-                      ) : (
-                        <div style={{ 
-                          padding: '20px 10px', 
-                          color: 'var(--color-text-muted)', 
-                          fontSize: '11px', 
-                          textAlign: 'center',
-                          border: '1px dashed var(--border-gold)',
-                          borderRadius: 'var(--radius-md)'
-                        }}>
-                          No one in line
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </section>
-      </div>
 
-      {/* 2. Mobile-optimized layouts (Phones, Portrait Mobile Devices) */}
-      <div className="mobile-layout" style={{ width: '100%' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          
-          {/* Section: Compact Active Chairs Grid */}
-          <section className="glass-panel" style={{ padding: '16px' }}>
-            <h3 style={{ fontSize: '15px', fontWeight: 800, color: 'var(--color-gold)', display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '1px solid var(--border-gold)', paddingBottom: '8px', marginBottom: '12px' }}>
-              <Scissors size={16} />
-              Styling Stations Status
-            </h3>
-            
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '10px' }}>
-              {chairs.map(chair => {
-                const customer = chair.customer;
-                return (
-                  <div 
-                    key={chair.id} 
-                    style={{ 
-                      background: 'var(--bg-tertiary)', 
-                      border: customer ? '1px solid var(--color-gold)' : '1px solid var(--border-light)',
-                      borderRadius: '8px',
-                      padding: '10px',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '4px',
-                      position: 'relative'
-                    }}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <div 
-                        style={{ 
-                          width: '8px', 
-                          height: '8px', 
-                          borderRadius: '50%', 
-                          backgroundColor: chair.status === 'break' ? 'var(--color-accent-amber)' : customer ? 'var(--color-accent-green)' : 'var(--color-text-muted)'
-                        }} 
-                      />
-                      <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--color-text-primary)' }}>
-                        {chair.name.split(' ')[0]}
-                      </span>
-                    </div>
-                    
-                    <div style={{ fontSize: '10px', color: 'var(--color-text-secondary)' }}>
-                      {chair.specialty.split(' ')[0]}
-                    </div>
-                    
-                    <div style={{ borderTop: '1px solid var(--border-light)', paddingTop: '6px', marginTop: '4px', minHeight: '34px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                      {customer ? (
-                        <>
-                          <div style={{ fontSize: '11px', fontWeight: 650, color: 'var(--color-text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                            {customer.name}
-                          </div>
-                          <div style={{ fontSize: '9px', color: 'var(--color-accent-green)', fontWeight: 700 }}>
-                            Serving • ₹{customer.cost || 0}
-                          </div>
-                        </>
-                      ) : (
-                        <span style={{ fontSize: '10px', color: 'var(--color-text-muted)', fontStyle: 'italic' }}>
-                          {chair.status === 'break' ? 'On Break' : 'Available'}
-                        </span>
-                      )}
-                    </div>
-
-                    {isAdmin && (
-                      <div style={{ display: 'flex', gap: '4px', marginTop: '6px' }}>
-                        {customer ? (
-                          <button
-                            onClick={() => onCompleteCut(chair.id)}
-                            className="btn-primary"
-                            style={{ padding: '4px 6px', fontSize: '9px', width: '100%', justifyContent: 'center', background: 'linear-gradient(135deg, var(--color-accent-green) 0%, #059669 100%)' }}
-                          >
-                            Checkout
-                          </button>
-                        ) : (
-                          <button
-                            onClick={() => onToggleBreak(chair.id)}
-                            className="btn-secondary"
-                            style={{ padding: '4px 6px', fontSize: '9px', width: '100%', justifyContent: 'center' }}
-                          >
-                            {chair.status === 'break' ? 'Resume' : 'Break'}
-                          </button>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </section>
-
-          {/* Section: Unified Shop Waitlist Queue */}
-          <section className="glass-panel" style={{ padding: '16px' }}>
-            <h3 style={{ fontSize: '15px', fontWeight: 800, color: 'var(--color-gold)', display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '1px solid var(--border-gold)', paddingBottom: '8px', marginBottom: '12px' }}>
-              <Users size={16} />
-              Unified Waitlist Queue ({unifiedQueue.length})
-            </h3>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '420px', overflowY: 'auto' }}>
-              {unifiedQueue.length > 0 ? (
-                unifiedQueue.map((customer, idx) => {
-                  const isMyTicket = customer.id === myTicketId;
-                  const isTracked = trackName && customer.name.trim().toLowerCase() === trackName.trim().toLowerCase();
-                  const isShared = customer.preferredBarberId === 'any';
-
-                  return (
-                    <div 
-                      key={customer.id} 
-                      style={{
-                        background: 'var(--bg-tertiary)',
-                        padding: '10px 12px',
-                        borderRadius: '8px',
-                        border: isTracked 
-                          ? '1.5px solid #00d2ff' 
-                          : isMyTicket 
-                            ? '1.5px solid var(--color-gold)' 
-                            : '1px solid var(--border-light)',
-                        boxShadow: isTracked 
-                          ? '0 0 10px rgba(0, 210, 255, 0.2)' 
-                          : isMyTicket 
-                            ? '0 0 8px rgba(197, 168, 128, 0.1)' 
-                            : 'none',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        gap: '12px'
-                      }}
-                    >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <div className="queue-position" style={{ width: '26px', height: '26px', fontSize: '12px', flexShrink: 0 }}>
-                          {idx + 1}
-                        </div>
-                        
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-text-primary)' }}>
-                              {customer.name}
-                            </span>
-                            {(isMyTicket || isTracked) && (
-                              <span style={{
-                                background: isTracked ? '#00d2ff' : 'var(--color-gold)',
-                                color: 'var(--bg-primary)',
-                                fontSize: '8px',
-                                fontWeight: 800,
-                                padding: '1px 4px',
-                                borderRadius: '2px',
-                                textTransform: 'uppercase'
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              <span style={{ 
+                                fontSize: '11px', 
+                                fontWeight: 700, 
+                                color: 'var(--color-accent-green)',
+                                background: 'rgba(16, 185, 129, 0.08)',
+                                padding: '2px 6px',
+                                borderRadius: '4px'
                               }}>
-                                You
+                                ₹ {customer.cost || 0}
                               </span>
-                            )}
-                          </div>
-                          
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                            <span style={{ fontSize: '9px', color: 'var(--color-text-secondary)' }}>
-                              Line: {isShared ? 'Next Available' : customer.preferredBarberName.split(' ')[0]}
-                            </span>
+
+                              {isAdmin && (
+                                <button
+                                  className="remove-queue-btn"
+                                  onClick={() => onRemoveFromQueue(customer.id)}
+                                  title="Remove customer"
+                                  style={{ padding: '4px' }}
+                                >
+                                  <Trash2 size={12} />
+                                </button>
+                              )}
+                            </div>
                           </div>
                         </div>
-                      </div>
-
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span style={{ 
-                          fontSize: '11px', 
-                          fontWeight: 700, 
-                          color: 'var(--color-accent-green)',
-                          background: 'rgba(16, 185, 129, 0.08)',
-                          padding: '2px 6px',
-                          borderRadius: '4px'
-                        }}>
-                          ₹{customer.cost || 0}
-                        </span>
-
-                        {isAdmin && (
-                          <button
-                            className="remove-queue-btn"
-                            onClick={() => onRemoveFromQueue(customer.id)}
-                            style={{ padding: '6px' }}
-                          >
-                            <Trash2 size={12} />
-                          </button>
-                        )}
-                      </div>
+                      );
+                    })
+                  ) : (
+                    <div style={{ 
+                      padding: '20px 10px', 
+                      color: 'var(--color-text-muted)', 
+                      fontSize: '11px', 
+                      textAlign: 'center',
+                      border: '1px dashed var(--border-gold)',
+                      borderRadius: 'var(--radius-md)'
+                    }}>
+                      No one in line
                     </div>
-                  );
-                })
-              ) : (
-                <div style={{ padding: '24px 12px', color: 'var(--color-text-muted)', fontSize: '11px', textAlign: 'center', border: '1px dashed var(--border-gold)', borderRadius: '8px' }}>
-                  The waitlist is currently empty.
+                  )}
                 </div>
-              )}
+              </div>
             </div>
-          </section>
-        </div>
+          );
+        })}
       </div>
-    </>
-  );
+    </section>
 }
