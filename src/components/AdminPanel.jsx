@@ -12,7 +12,9 @@ export default function AdminPanel({
   history,
   barbers,
   allowCustomerJoin,
-  toggleAllowCustomerJoin
+  toggleAllowCustomerJoin,
+  requireAuth = true,
+  toggleRequireAuth
 }) {
   const [newBarberName, setNewBarberName] = useState('');
   const [newBarberSpecialty, setNewBarberSpecialty] = useState('Hair Master');
@@ -77,6 +79,15 @@ export default function AdminPanel({
             >
               <Users size={14} style={{ color: allowCustomerJoin ? 'var(--color-gold)' : 'inherit' }} />
               <span>{allowCustomerJoin ? 'Disable Customer Self-Join' : 'Enable Customer Self-Join'}</span>
+            </button>
+
+            <button
+              className="btn-secondary"
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', border: requireAuth ? '1.5px solid var(--color-gold)' : '' }}
+              onClick={toggleRequireAuth}
+            >
+              <ShieldAlert size={14} style={{ color: requireAuth ? 'var(--color-gold)' : 'inherit' }} />
+              <span>{requireAuth ? 'Disable Google Auth' : 'Enable Google Auth'}</span>
             </button>
             
             <button 

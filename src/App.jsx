@@ -107,6 +107,7 @@ export default function App() {
   const [myTicketId, setMyTicketId] = useState(localStorage.getItem('myTicketId') || '');
   const [trackName, setTrackName] = useState(localStorage.getItem('trimtime_track_name') || '');
   const [allowCustomerJoin, setAllowCustomerJoin] = useState(false);
+  const [requireAuth, setRequireAuth] = useState(true);
 
   // Authentication View Controller
   const [currentView, setCurrentView] = useState(() => {
@@ -173,11 +174,13 @@ export default function App() {
         const data = snapshot.data();
         setIsShopOpen(data.isShopOpen !== undefined ? data.isShopOpen : true);
         setAllowCustomerJoin(data.allowCustomerJoin || false);
+        setRequireAuth(data.requireAuth !== undefined ? data.requireAuth : true);
       } else {
         // Initialize default settings doc
         setDoc(doc(db, 'settings', 'config'), {
           isShopOpen: true,
-          allowCustomerJoin: false
+          allowCustomerJoin: false,
+          requireAuth: true
         });
       }
     }, (error) => {
@@ -197,22 +200,20 @@ export default function App() {
             const pendingData = JSON.parse(pendingDataStr);
             localStorage.removeItem('trimtime_pending_join');
 
-            // Find full barber name mapping
-            let resolvedBarberName = 'Next Available';
-            if (pendingData.preferredBarberId !== 'any' && barbers.length > 0) {
-              const matchedBarber = barbers.find(b => b.id === pendingData.preferredBarberId);
-              if (matchedBarber) {
-                resolvedBarberName = matchedBarber.name;
-              }
-            }
+            // Fetch fresh barbers directly to ensure immediate seating state check is accurate
+            const barbersSnap = await getDocs(collection(db, 'barbers'));
+            const freshBarbers = [];
+            barbersSnap.forEach(doc => {
+              freshBarbers.push({ id: doc.id, ...doc.data() });
+            });
 
             await handleJoinQueue({
               name: pendingData.name,
               preferredBarberId: pendingData.preferredBarberId,
-              preferredBarberName: resolvedBarberName,
+              preferredBarberName: pendingData.preferredBarberName || 'Next Available',
               cost: Number(pendingData.cost) || 0,
               authorizedBy: result.user.email
-            });
+            }, freshBarbers);
 
             // Set track name so they see themselves highlighted
             setTrackName(pendingData.name);
@@ -224,10 +225,8 @@ export default function App() {
       }
     };
 
-    if (barbers.length > 0) {
-      checkRedirect();
-    }
-  }, [barbers]);
+    checkRedirect();
+  }, []);
 
   // 4. Auto-Seeding Database on Initial Connection (If Collections are Empty)
   useEffect(() => {
@@ -321,7 +320,7 @@ export default function App() {
   // FIREBASE WRITE TRANSACTION HANDLERS
 
   // Add client to the queue (seating them immediately if an eligible chair is open)
-  const handleJoinQueue = async (customerData) => {
+  const handleJoinQueue = async (customerData, barbersList = barbers) => {
     try {
       // Auto-set the tracking name for the user
       setTrackName(customerData.name);
@@ -329,7 +328,7 @@ export default function App() {
 
       if (isShopOpen) {
         // Scan for active, vacant chairs that fit customer preference
-        const freeBarber = barbers.find(b => 
+        const freeBarber = barbersList.find(b => 
           b.status === 'active' && 
           !b.customer && 
           (customerData.preferredBarberId === 'any' || customerData.preferredBarberId === b.id)
@@ -517,6 +516,15 @@ export default function App() {
     }
   };
 
+  // Toggle requireAuth config
+  const handleToggleRequireAuth = async () => {
+    try {
+      await updateDoc(doc(db, 'settings', 'config'), { requireAuth: !requireAuth });
+    } catch (err) {
+      console.error("Firestore Toggle Require Auth Failed:", err);
+    }
+  };
+
   // Add custom styling chair
   const handleAddBarber = async (barberData) => {
     try {
@@ -667,6 +675,8 @@ export default function App() {
               barbers={barbers}
               allowCustomerJoin={allowCustomerJoin}
               toggleAllowCustomerJoin={handleToggleAllowCustomerJoin}
+              requireAuth={requireAuth}
+              toggleRequireAuth={handleToggleRequireAuth}
             />
           )}
 
@@ -677,7 +687,7 @@ export default function App() {
             barbers={barbers}
             queue={queue}
             onJoinQueue={handleJoinQueue}
-            requireGoogleAuth={currentView === 'customer'}
+            requireGoogleAuth={currentView === 'customer' && requireAuth}
           />
         </>
       )}
