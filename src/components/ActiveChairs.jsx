@@ -1,8 +1,8 @@
 // C:\Users\himanshu\.gemini\antigravity\scratch\barber-queue-app\src\components\ActiveChairs.jsx
 import React, { useState, useEffect } from 'react';
-import { Scissors, UserCheck, Coffee, Users, Trash2, UserX, Clock } from 'lucide-react';
+import { Scissors, UserCheck, Coffee, Users, Trash2, UserX, Clock, XCircle } from 'lucide-react';
 
-function ChairCard({ chair, isAdmin, onCompleteCut, onToggleBreak }) {
+function ChairCard({ chair, isAdmin, onCompleteCut, onToggleBreak, onRemoveWithoutService }) {
   const customer = chair.customer;
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
 
@@ -94,26 +94,49 @@ function ChairCard({ chair, isAdmin, onCompleteCut, onToggleBreak }) {
             
             {/* Prominent Admin Checkout Action Button */}
             {isAdmin ? (
-              <button
-                onClick={() => onCompleteCut(chair.id)}
-                className="btn-primary"
-                style={{
-                  marginTop: '8px',
-                  padding: '8px 12px',
-                  fontSize: '12px',
-                  background: 'linear-gradient(135deg, var(--color-accent-green) 0%, #059669 100%)',
-                  color: '#fff',
-                  width: '100%',
-                  justifyContent: 'center',
-                  boxShadow: '0 4px 12px rgba(16, 185, 129, 0.25)',
-                  border: 'none',
-                  borderRadius: 'var(--radius-sm)'
-                }}
-                title="Complete session and automatically pull next customer in line"
-              >
-                <UserCheck size={14} />
-                <span>Complete & Seat Next</span>
-              </button>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '8px' }}>
+                <button
+                  onClick={() => onCompleteCut(chair.id)}
+                  className="btn-primary"
+                  style={{
+                    padding: '8px 12px',
+                    fontSize: '12px',
+                    background: 'linear-gradient(135deg, var(--color-accent-green) 0%, #059669 100%)',
+                    color: '#fff',
+                    width: '100%',
+                    justifyContent: 'center',
+                    boxShadow: '0 4px 12px rgba(16, 185, 129, 0.25)',
+                    border: 'none',
+                    borderRadius: 'var(--radius-sm)'
+                  }}
+                  title="Complete session and automatically pull next customer in line"
+                >
+                  <UserCheck size={14} />
+                  <span>Complete & Seat Next</span>
+                </button>
+                <button
+                  onClick={() => onRemoveWithoutService(chair.id)}
+                  className="btn-primary"
+                  style={{
+                    padding: '6px 10px',
+                    fontSize: '11px',
+                    background: 'rgba(239, 68, 68, 0.1)',
+                    color: 'var(--color-accent-red, #ef4444)',
+                    width: '100%',
+                    justifyContent: 'center',
+                    border: '1px solid rgba(239, 68, 68, 0.25)',
+                    borderRadius: 'var(--radius-sm)',
+                    boxShadow: 'none',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseOver={(e) => { e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)'; }}
+                  onMouseOut={(e) => { e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)'; }}
+                  title="Remove customer from chair without logging service or cost"
+                >
+                  <XCircle size={13} />
+                  <span>Remove without Service</span>
+                </button>
+              </div>
             ) : (
               <div style={{ display: 'flex', gap: '6px', marginTop: '4px' }}>
                 <span className="active-service-badge">
@@ -140,6 +163,7 @@ export default function ActiveChairs({
   isAdmin,
   onCompleteCut,
   onToggleBreak,
+  onRemoveWithoutService,
   queue,
   onRemoveFromQueue,
   myTicketId,
@@ -208,6 +232,7 @@ export default function ActiveChairs({
                 isAdmin={isAdmin}
                 onCompleteCut={onCompleteCut}
                 onToggleBreak={onToggleBreak}
+                onRemoveWithoutService={onRemoveWithoutService}
               />
 
               {/* Specific Waitlist Column directly below chair */}
@@ -279,11 +304,25 @@ export default function ActiveChairs({
                               {idx + 1}
                             </div>
                             
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '1px', flex: 1, minWidth: 0 }}>
                               <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                                 <span className="queue-customer-name" style={{ fontSize: '13px' }}>
                                   {customer.name}
                                 </span>
+                                {isAdmin && customer.cost > 0 && (
+                                  <span style={{
+                                    background: 'rgba(16, 185, 129, 0.1)',
+                                    color: 'var(--color-accent-green)',
+                                    border: '1px solid rgba(16, 185, 129, 0.2)',
+                                    fontSize: '9px',
+                                    fontWeight: 700,
+                                    padding: '1px 5px',
+                                    borderRadius: '3px',
+                                    whiteSpace: 'nowrap'
+                                  }}>
+                                    ₹{customer.cost}
+                                  </span>
+                                )}
                                 {isMyTicket && (
                                   <span style={{
                                     background: 'var(--color-gold)',

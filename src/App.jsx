@@ -454,6 +454,19 @@ export default function App() {
     }
   };
 
+  // Remove customer from chair WITHOUT logging to history or recording cost
+  const handleRemoveWithoutService = async (chairId) => {
+    if (!window.confirm("Remove this customer without service? No cost will be recorded.")) return;
+    try {
+      await updateDoc(doc(db, 'barbers', chairId), {
+        customer: null,
+        startTime: null
+      });
+    } catch (err) {
+      console.error("Firestore Remove Without Service Failed:", err);
+    }
+  };
+
   // Toggle barber break status (automatically seats waiting client if switching to active)
   const handleToggleBreak = async (chairId) => {
     try {
@@ -676,6 +689,7 @@ export default function App() {
               onToggleBreak={handleToggleBreak}
               queue={queue}
               onRemoveFromQueue={handleRemoveFromQueue}
+              onRemoveWithoutService={handleRemoveWithoutService}
               myTicketId={myTicketId}
               trackName={trackName}
             />
