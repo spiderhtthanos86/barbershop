@@ -105,6 +105,7 @@ export default function App() {
   const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
   const [myTicketId, setMyTicketId] = useState(localStorage.getItem('myTicketId') || '');
   const [trackName, setTrackName] = useState(localStorage.getItem('trimtime_track_name') || '');
+  const [allowCustomerJoin, setAllowCustomerJoin] = useState(false);
 
   // Authentication View Controller
   const [currentView, setCurrentView] = useState(() => {
@@ -160,6 +161,26 @@ export default function App() {
       setHistory(list);
     }, (error) => {
       console.warn("History stream inactive:", error);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  // 3b. Subscribe to global Settings configs (Real-Time)
+  useEffect(() => {
+    const unsubscribe = onSnapshot(doc(db, 'settings', 'config'), (snapshot) => {
+      if (snapshot.exists()) {
+        const data = snapshot.data();
+        setIsShopOpen(data.isShopOpen !== undefined ? data.isShopOpen : true);
+        setAllowCustomerJoin(data.allowCustomerJoin || false);
+      } else {
+        // Initialize default settings doc
+        setDoc(doc(db, 'settings', 'config'), {
+          isShopOpen: true,
+          allowCustomerJoin: false
+        });
+      }
+    }, (error) => {
+      console.warn("Settings configuration stream inactive:", error);
     });
     return () => unsubscribe();
   }, []);
@@ -408,11 +429,11 @@ export default function App() {
   // Toggle Auto-Seating (automatically seats waiting clients when turned ON)
   const handleToggleShopOpen = async () => {
     const nextShopState = !isShopOpen;
-    setIsShopOpen(nextShopState);
+    try {
+      await updateDoc(doc(db, 'settings', 'config'), { isShopOpen: nextShopState });
 
-    if (nextShopState) {
-      // Seating Sweep: check if any vacant active barbers can seat waiting clients
-      try {
+      if (nextShopState) {
+        // Seating Sweep: check if any vacant active barbers can seat waiting clients
         let currentQueue = [...queue];
         for (const barber of barbers) {
           if (barber.status === 'active' && !barber.customer) {
@@ -435,9 +456,18 @@ export default function App() {
             }
           }
         }
-      } catch (err) {
-        console.error("Firestore Resume Seating Sweep Failed:", err);
       }
+    } catch (err) {
+      console.error("Firestore Resume Seating Sweep Failed:", err);
+    }
+  };
+
+  // Toggle Customer self join permissions
+  const handleToggleAllowCustomerJoin = async () => {
+    try {
+      await updateDoc(doc(db, 'settings', 'config'), { allowCustomerJoin: !allowCustomerJoin });
+    } catch (err) {
+      console.error("Firestore Toggle Allow Customer Join Failed:", err);
     }
   };
 
@@ -517,6 +547,7 @@ export default function App() {
         currentView={currentView}
         onPortalClick={() => setCurrentView('login')}
         onLogout={handleLogout}
+        allowCustomerJoin={allowCustomerJoin}
       />
 
       {/* Main View Manager */}
@@ -588,6 +619,8 @@ export default function App() {
               onRemoveBarber={handleRemoveBarber}
               history={history}
               barbers={barbers}
+              allowCustomerJoin={allowCustomerJoin}
+              toggleAllowCustomerJoin={handleToggleAllowCustomerJoin}
             />
           )}
 
@@ -598,6 +631,7 @@ export default function App() {
             barbers={barbers}
             queue={queue}
             onJoinQueue={handleJoinQueue}
+            requireGoogleAuth={currentView === 'customer'}
           />
         </>
       )}

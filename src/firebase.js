@@ -20,3 +20,11 @@ const app = initializeApp(firebaseConfig);
 
 // Initialize Cloud Firestore and export db
 export const db = getFirestore(app);
+
+// Import Auth modules
+import { getAuth, GoogleAuthProvider } from 'firebase/auth';
+
+// Initialize Auth and export auth & provider
+export const auth = getAuth(app);
+export const googleProvider = new GoogleAuthProvider();
+googleProvider.setCustomParameters({ prompt: 'select_account' });

@@ -10,7 +10,9 @@ export default function AdminPanel({
   onAddBarber,
   onRemoveBarber,
   history,
-  barbers
+  barbers,
+  allowCustomerJoin,
+  toggleAllowCustomerJoin
 }) {
   const [newBarberName, setNewBarberName] = useState('');
   const [newBarberSpecialty, setNewBarberSpecialty] = useState('Hair Master');
@@ -66,6 +68,15 @@ export default function AdminPanel({
             >
               <Ban size={14} style={{ color: !isShopOpen ? 'var(--color-accent-amber)' : 'inherit' }} />
               <span>{isShopOpen ? 'Pause Auto-Seating' : 'Resume Auto-Seating'}</span>
+            </button>
+
+            <button
+              className="btn-secondary"
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', border: allowCustomerJoin ? '1.5px solid var(--color-gold)' : '' }}
+              onClick={toggleAllowCustomerJoin}
+            >
+              <Users size={14} style={{ color: allowCustomerJoin ? 'var(--color-gold)' : 'inherit' }} />
+              <span>{allowCustomerJoin ? 'Disable Customer Self-Join' : 'Enable Customer Self-Join'}</span>
             </button>
             
             <button 
@@ -176,7 +187,7 @@ export default function AdminPanel({
           </div>
         </div>
 
-        {/* History Log Card */}
+        {/* History Log Card - Grouped by Chair/Barber */}
         <div className="admin-action-card">
           <h3 className="admin-card-title">
             <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -185,30 +196,58 @@ export default function AdminPanel({
             </span>
           </h3>
           
-          <div className="history-list">
-            {history.length > 0 ? (
-              [...history].reverse().map((item, idx) => (
-                <div key={item.completedAt + idx} className="history-item">
-                  <div>
-                    <span className="history-name">{item.customerName}</span>
-                    <span className="history-details"> by {item.barberName}</span>
+          <div className="history-list" style={{ maxHeight: '220px', overflowY: 'auto' }}>
+            {barbers.map(barber => {
+              const barberHistory = history.filter(item => item.barberId === barber.id || item.barberName === barber.name);
+              
+              return (
+                <div key={barber.id} style={{ marginBottom: '14px' }}>
+                  {/* Chair Header */}
+                  <div style={{ 
+                    fontSize: '12px', 
+                    fontWeight: 700, 
+                    color: 'var(--color-gold)', 
+                    borderBottom: '1px dashed rgba(197, 168, 128, 0.3)', 
+                    paddingBottom: '4px', 
+                    marginBottom: '6px',
+                    display: 'flex',
+                    justifyContent: 'space-between'
+                  }}>
+                    <span>{barber.name}</span>
+                    <span style={{ color: 'var(--color-text-muted)', fontSize: '10px' }}>({barberHistory.length} served)</span>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--color-accent-green)' }}>
-                      ₹{item.cost || 0}
-                    </span>
-                    <span style={{ fontSize: '10px', color: 'var(--color-text-muted)', display: 'flex', alignItems: 'center', gap: '2px' }}>
-                      <Clock size={10} />
-                      {new Date(item.completedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </span>
+
+                  {/* Customers Served under this chair */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    {barberHistory.length > 0 ? (
+                      [...barberHistory].reverse().map((item, idx) => (
+                        <div key={item.completedAt + idx} className="history-item" style={{ padding: '6px 10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                            <span className="history-name" style={{ fontSize: '12px', fontWeight: 600 }}>{item.customerName}</span>
+                            {item.authorizedBy && (
+                              <span style={{ fontSize: '8px', color: 'var(--color-text-muted)' }}>Auth: {item.authorizedBy}</span>
+                            )}
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--color-accent-green)' }}>
+                              ₹{item.cost || 0}
+                            </span>
+                            <span style={{ fontSize: '10px', color: 'var(--color-text-muted)', display: 'flex', alignItems: 'center', gap: '2px' }}>
+                              <Clock size={10} />
+                              {new Date(item.completedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </span>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div style={{ fontSize: '10px', color: 'var(--color-text-muted)', fontStyle: 'italic', paddingLeft: '4px' }}>
+                        No clients served today.
+                      </div>
+                    )}
                   </div>
                 </div>
-              ))
-            ) : (
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'var(--color-text-muted)', fontSize: '11px', textAlign: 'center', padding: '12px' }}>
-                No completed cuts in this session yet.
-              </div>
-            )}
+              );
+            })}
           </div>
         </div>
       </div>

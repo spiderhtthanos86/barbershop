@@ -9,7 +9,8 @@ export default function Header({
   isShopOpen,
   currentView,
   onPortalClick,
-  onLogout
+  onLogout,
+  allowCustomerJoin
 }) {
   return (
     <header className="glass-panel header-wrapper">
@@ -55,6 +56,18 @@ export default function Header({
           >
             <Lock size={14} />
             <span>Staff Portal</span>
+          </button>
+        )}
+
+        {/* Customer Self-Join Button (Only visible when allowed by Owner!) */}
+        {currentView === 'customer' && allowCustomerJoin && (
+          <button 
+            className="btn-primary" 
+            onClick={onOpenJoinModal} 
+            title="Join the waiting queue"
+          >
+            <PlusCircle size={18} />
+            <span>Join Waitlist</span>
           </button>
         )}
 
