@@ -1,5 +1,5 @@
 // C:\Users\himanshu\.gemini\antigravity\scratch\barber-queue-app\src\App.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Header from './components/Header';
 import StatsPanel from './components/StatsPanel';
 import ActiveChairs from './components/ActiveChairs';
@@ -10,7 +10,7 @@ import CustomerHistory from './components/CustomerHistory';
 
 // Import Firestore database reference and SDK methods
 import { db, auth } from './firebase';
-import { getRedirectResult, signOut } from 'firebase/auth';
+import { getRedirectResult, onAuthStateChanged, signOut } from 'firebase/auth';
 import { 
   collection, 
   doc, 
@@ -101,6 +101,7 @@ const playSynthesizedSound = (type, enabled) => {
 };
 
 export default function App() {
+  const redirectHandledRef = useRef(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [isShopOpen, setIsShopOpen] = useState(true);
   const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
@@ -189,45 +190,67 @@ export default function App() {
     return () => unsubscribe();
   }, []);
 
-  // 3c. Capture Google authentication redirect success
+  // 3c. Handle Google redirect return (fallback when popup was blocked)
+  // Writes directly to Firestore to avoid stale closure issues
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(async (user) => {
-      if (user) {
-        try {
-          const pendingDataStr = localStorage.getItem('trimtime_pending_join');
-          if (pendingDataStr) {
-            const pendingData = JSON.parse(pendingDataStr);
-            localStorage.removeItem('trimtime_pending_join');
+    const completePendingJoin = async (email) => {
+      if (redirectHandledRef.current) return;
+      const pendingStr = localStorage.getItem('trimtime_pending_join');
+      if (!pendingStr) return;
 
-            // Fetch fresh barbers directly to ensure immediate seating state check is accurate
-            const barbersSnap = await getDocs(collection(db, 'barbers'));
-            const freshBarbers = [];
-            barbersSnap.forEach(doc => {
-              freshBarbers.push({ id: doc.id, ...doc.data() });
-            });
+      redirectHandledRef.current = true;
+      console.log('Completing pending join after Google redirect for:', email);
 
-            await handleJoinQueue({
-              name: pendingData.name,
-              preferredBarberId: pendingData.preferredBarberId,
-              preferredBarberName: pendingData.preferredBarberName || 'Next Available',
-              cost: Number(pendingData.cost) || 0,
-              authorizedBy: user.email
-            }, freshBarbers);
+      try {
+        const pending = JSON.parse(pendingStr);
+        localStorage.removeItem('trimtime_pending_join');
 
-            // Set track name so they see themselves highlighted
-            setTrackName(pendingData.name);
-            localStorage.setItem('trimtime_track_name', pendingData.name);
-          }
-        } catch (err) {
-          console.error("Authentication redirect check failed:", err);
-        } finally {
-          // Immediately sign out to prevent auto-login on subsequent attempts
-          await signOut(auth);
+        // Write directly to Firestore queue (avoids stale state issues)
+        const clientId = `c-${Date.now()}`;
+        await setDoc(doc(db, 'queue', clientId), {
+          name: pending.name,
+          preferredBarberId: pending.preferredBarberId,
+          preferredBarberName: pending.preferredBarberName || 'Next Available',
+          cost: Number(pending.cost) || 0,
+          createdAt: new Date().toISOString(),
+          authorizedBy: email
+        });
+
+        // Set tracking so user sees themselves highlighted
+        setTrackName(pending.name);
+        localStorage.setItem('trimtime_track_name', pending.name);
+        setMyTicketId(clientId);
+
+        console.log('Successfully added to queue after redirect:', pending.name);
+      } catch (err) {
+        console.error('Failed to complete pending join after redirect:', err);
+      } finally {
+        // Sign out to prevent auto-login on next visit
+        try { await signOut(auth); } catch (_) {}
+      }
+    };
+
+    // Method 1: getRedirectResult (works when authDomain matches hosting domain)
+    getRedirectResult(auth)
+      .then(result => {
+        if (result && result.user) {
+          completePendingJoin(result.user.email);
         }
+      })
+      .catch(err => {
+        console.warn('getRedirectResult check:', err.code || err.message);
+      });
+
+    // Method 2: onAuthStateChanged (fallback — works via IndexedDB persistence)
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        completePendingJoin(user.email);
       }
     });
+
     return () => unsubscribe();
   }, []);
+
 
   // 4. Auto-Seeding Database on Initial Connection (If Collections are Empty)
   useEffect(() => {
