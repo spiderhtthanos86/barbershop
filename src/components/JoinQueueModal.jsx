@@ -104,6 +104,7 @@ export default function JoinQueueModal({
       return;
     }
     setError('');
+    completeSubmission(simulatedEmail.trim());
   };
 
   const handleClose = () => {
