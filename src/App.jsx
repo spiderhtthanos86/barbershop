@@ -10,7 +10,7 @@ import CustomerHistory from './components/CustomerHistory';
 
 // Import Firestore database reference and SDK methods
 import { db, auth } from './firebase';
-import { getRedirectResult } from 'firebase/auth';
+import { getRedirectResult, signOut } from 'firebase/auth';
 import { 
   collection, 
   doc, 
@@ -191,10 +191,9 @@ export default function App() {
 
   // 3c. Capture Google authentication redirect success
   useEffect(() => {
-    const checkRedirect = async () => {
-      try {
-        const result = await getRedirectResult(auth);
-        if (result && result.user) {
+    const unsubscribe = auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        try {
           const pendingDataStr = localStorage.getItem('trimtime_pending_join');
           if (pendingDataStr) {
             const pendingData = JSON.parse(pendingDataStr);
@@ -212,20 +211,22 @@ export default function App() {
               preferredBarberId: pendingData.preferredBarberId,
               preferredBarberName: pendingData.preferredBarberName || 'Next Available',
               cost: Number(pendingData.cost) || 0,
-              authorizedBy: result.user.email
+              authorizedBy: user.email
             }, freshBarbers);
 
             // Set track name so they see themselves highlighted
             setTrackName(pendingData.name);
             localStorage.setItem('trimtime_track_name', pendingData.name);
           }
+        } catch (err) {
+          console.error("Authentication redirect check failed:", err);
+        } finally {
+          // Immediately sign out to prevent auto-login on subsequent attempts
+          await signOut(auth);
         }
-      } catch (err) {
-        console.error("Authentication redirect check failed:", err);
       }
-    };
-
-    checkRedirect();
+    });
+    return () => unsubscribe();
   }, []);
 
   // 4. Auto-Seeding Database on Initial Connection (If Collections are Empty)
