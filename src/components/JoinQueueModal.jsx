@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { X, Check, User, AlertCircle, ShieldCheck, Mail } from 'lucide-react';
 import { auth, googleProvider } from '../firebase';
-import { signInWithPopup } from 'firebase/auth';
+import { signInWithRedirect } from 'firebase/auth';
 
 export default function JoinQueueModal({
   isOpen,
@@ -77,12 +77,22 @@ export default function JoinQueueModal({
     setIsSigningIn(true);
     setError('');
     try {
-      const result = await signInWithPopup(auth, googleProvider);
-      setGoogleUser(result.user);
+      const preferredBarberName = preferredBarberId === 'any' 
+        ? 'Next Available' 
+        : barbers.find(b => b.id === preferredBarberId)?.name || 'Next Available';
+
+      // Save form state to localStorage before redirecting
+      localStorage.setItem('trimtime_pending_join', JSON.stringify({
+        name: name.trim(),
+        preferredBarberId,
+        preferredBarberName,
+        cost: Number(cost) || 0
+      }));
+
+      await signInWithRedirect(auth, googleProvider);
     } catch (err) {
-      console.warn("Firebase popup authentication failed/blocked, displaying simulation backup:", err);
-      setError("Google pop-up blocked or not configured. Please use the Google Email entry below to authorize.");
-    } finally {
+      console.warn("Firebase redirect authentication failed:", err);
+      setError("Google redirect failed. Please authorize using the simulated Email ID below.");
       setIsSigningIn(false);
     }
   };

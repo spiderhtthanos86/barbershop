@@ -9,7 +9,8 @@ import LoginScreen from './components/LoginScreen';
 import CustomerHistory from './components/CustomerHistory';
 
 // Import Firestore database reference and SDK methods
-import { db } from './firebase';
+import { db, auth } from './firebase';
+import { getRedirectResult } from 'firebase/auth';
 import { 
   collection, 
   doc, 
@@ -185,6 +186,49 @@ export default function App() {
     return () => unsubscribe();
   }, []);
 
+  // 3c. Capture Google authentication redirect success
+  useEffect(() => {
+    const checkRedirect = async () => {
+      try {
+        const result = await getRedirectResult(auth);
+        if (result && result.user) {
+          const pendingDataStr = localStorage.getItem('trimtime_pending_join');
+          if (pendingDataStr) {
+            const pendingData = JSON.parse(pendingDataStr);
+            localStorage.removeItem('trimtime_pending_join');
+
+            // Find full barber name mapping
+            let resolvedBarberName = 'Next Available';
+            if (pendingData.preferredBarberId !== 'any' && barbers.length > 0) {
+              const matchedBarber = barbers.find(b => b.id === pendingData.preferredBarberId);
+              if (matchedBarber) {
+                resolvedBarberName = matchedBarber.name;
+              }
+            }
+
+            await handleJoinQueue({
+              name: pendingData.name,
+              preferredBarberId: pendingData.preferredBarberId,
+              preferredBarberName: resolvedBarberName,
+              cost: Number(pendingData.cost) || 0,
+              authorizedBy: result.user.email
+            });
+
+            // Set track name so they see themselves highlighted
+            setTrackName(pendingData.name);
+            localStorage.setItem('trimtime_track_name', pendingData.name);
+          }
+        }
+      } catch (err) {
+        console.error("Authentication redirect check failed:", err);
+      }
+    };
+
+    if (barbers.length > 0) {
+      checkRedirect();
+    }
+  }, [barbers]);
+
   // 4. Auto-Seeding Database on Initial Connection (If Collections are Empty)
   useEffect(() => {
     const seedDatabase = async () => {
@@ -296,7 +340,8 @@ export default function App() {
           await updateDoc(doc(db, 'barbers', freeBarber.id), {
             customer: { 
               name: customerData.name,
-              cost: Number(customerData.cost) || 0
+              cost: Number(customerData.cost) || 0,
+              authorizedBy: customerData.authorizedBy || 'Guest'
             },
             startTime: new Date().toISOString()
           });
@@ -312,7 +357,8 @@ export default function App() {
         preferredBarberId: customerData.preferredBarberId,
         preferredBarberName: customerData.preferredBarberName,
         cost: Number(customerData.cost) || 0,
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
+        authorizedBy: customerData.authorizedBy || 'Guest'
       });
 
       setMyTicketId(clientId);
