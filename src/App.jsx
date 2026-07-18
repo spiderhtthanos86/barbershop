@@ -19,7 +19,6 @@ import {
   updateDoc, 
   deleteDoc, 
   addDoc, 
-  getDocs, 
   query, 
   orderBy 
 } from 'firebase/firestore';
@@ -252,80 +251,7 @@ export default function App() {
   }, []);
 
 
-  // 4. Auto-Seeding Database on Initial Connection (Only runs ONCE ever — uses 'seeded' flag)
-  useEffect(() => {
-    const seedDatabase = async () => {
-      try {
-        // Check if we've already seeded before — prevents re-seeding when owner removes all chairs
-        const { getDoc } = await import('firebase/firestore');
-        const configSnap = await getDoc(doc(db, 'settings', 'config'));
-        if (configSnap.exists() && configSnap.data().seeded) {
-          return; // Already seeded, skip
-        }
 
-        const barbersSnap = await getDocs(collection(db, 'barbers'));
-        if (barbersSnap.empty) {
-          // Initialize default barbers
-          await setDoc(doc(db, 'barbers', 'alex'), {
-            name: 'Alex Rivers',
-            specialty: 'Classic Cuts & Fades',
-            status: 'active',
-            customer: { name: 'Leonidas of Sparta', cost: 150 },
-            startTime: new Date(Date.now() - 1000 * 60 * 18).toISOString(),
-            order: 1
-          });
-          await setDoc(doc(db, 'barbers', 'sam'), {
-            name: 'Sam Thorne',
-            specialty: 'Beards & Hot Shaves',
-            status: 'active',
-            customer: { name: 'Alexander The Great', cost: 200 },
-            startTime: new Date(Date.now() - 1000 * 60 * 8).toISOString(),
-            order: 2
-          });
-          await setDoc(doc(db, 'barbers', 'jordan'), {
-            name: 'Jordan Vance',
-            specialty: 'Modern Styling',
-            status: 'active',
-            customer: null,
-            startTime: null,
-            order: 3
-          });
-        }
-
-        const queueSnap = await getDocs(collection(db, 'queue'));
-        if (queueSnap.empty) {
-          // Initialize default queue
-          await setDoc(doc(db, 'queue', 'c-1'), {
-            name: 'Marcus Aurelius',
-            preferredBarberId: 'alex',
-            preferredBarberName: 'Alex Rivers',
-            cost: 150,
-            createdAt: new Date(Date.now() - 1000 * 60 * 15).toISOString()
-          });
-          await setDoc(doc(db, 'queue', 'c-2'), {
-            name: 'Cleopatra VII',
-            preferredBarberId: 'any',
-            preferredBarberName: 'Next Available',
-            cost: 100,
-            createdAt: new Date(Date.now() - 1000 * 60 * 5).toISOString()
-          });
-          await setDoc(doc(db, 'queue', 'c-3'), {
-            name: 'Julius Caesar',
-            preferredBarberId: 'sam',
-            preferredBarberName: 'Sam Thorne',
-            cost: 120,
-            createdAt: new Date(Date.now() - 1000 * 60 * 2).toISOString()
-          });
-        }
-
-        // Mark as seeded so it never runs again
-        await setDoc(doc(db, 'settings', 'config'), { seeded: true }, { merge: true });
-      } catch (err) {
-        console.warn("Auto-seeding skipped. This is normal if you haven't replaced the placeholder keys in firebase.js yet.", err);
-      }
-    };
-    seedDatabase();
-  }, []);
 
   // Sync myTicketId with localStorage
   useEffect(() => {
