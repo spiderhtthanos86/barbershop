@@ -252,10 +252,17 @@ export default function App() {
   }, []);
 
 
-  // 4. Auto-Seeding Database on Initial Connection (If Collections are Empty)
+  // 4. Auto-Seeding Database on Initial Connection (Only runs ONCE ever — uses 'seeded' flag)
   useEffect(() => {
     const seedDatabase = async () => {
       try {
+        // Check if we've already seeded before — prevents re-seeding when owner removes all chairs
+        const { getDoc } = await import('firebase/firestore');
+        const configSnap = await getDoc(doc(db, 'settings', 'config'));
+        if (configSnap.exists() && configSnap.data().seeded) {
+          return; // Already seeded, skip
+        }
+
         const barbersSnap = await getDocs(collection(db, 'barbers'));
         if (barbersSnap.empty) {
           // Initialize default barbers
@@ -310,6 +317,9 @@ export default function App() {
             createdAt: new Date(Date.now() - 1000 * 60 * 2).toISOString()
           });
         }
+
+        // Mark as seeded so it never runs again
+        await setDoc(doc(db, 'settings', 'config'), { seeded: true }, { merge: true });
       } catch (err) {
         console.warn("Auto-seeding skipped. This is normal if you haven't replaced the placeholder keys in firebase.js yet.", err);
       }

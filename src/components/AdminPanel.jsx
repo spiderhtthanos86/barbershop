@@ -143,7 +143,7 @@ export default function AdminPanel({
             </button>
           </form>
 
-          {barbers.length > 2 && (
+          {barbers.length > 0 && (
             <div style={{ marginTop: '8px', borderTop: '1px solid var(--border-gold)', paddingTop: '8px' }}>
               <span style={{ fontSize: '11px', color: 'var(--color-text-secondary)', display: 'block', marginBottom: '6px' }}>
                 Remove Chair (Must be empty):
