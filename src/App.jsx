@@ -584,8 +584,10 @@ export default function App() {
         startTime: null,
         order: barbers.length + 1
       });
+      console.log('Chair added successfully:', barberData.name);
     } catch (err) {
       console.error("Firestore Add Chair Failed:", err);
+      alert(`Failed to add chair: ${err.message}\n\nIf your Firestore test-mode rules have expired, please update them in Firebase Console → Firestore → Rules.`);
     }
   };
 
