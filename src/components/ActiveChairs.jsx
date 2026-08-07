@@ -208,12 +208,48 @@ export default function ActiveChairs({
         Includes a tab-active-${activeTab} class to let pure CSS hide columns on Mobile, 
         while Laptop screens show all columns side-by-side simultaneously!
       */}
-      <div className={`stations-grid-container tab-active-${activeTab}`}>
-        {chairs.map((chair, index) => {
-          // Filter waitlist for this specific barber OR next available ('any')
-          const chairQueue = queue
-            .filter(c => c.preferredBarberId === chair.id || c.preferredBarberId === 'any')
-            .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt)); // Sort chronologically
+      {/* Pre-compute waitlist distribution: assign 'any' customers to chairs
+          in round-robin so each person appears exactly once */}
+      {(() => {
+        // Build a map of chairId -> queue entries
+        const chairQueueMap = {};
+        chairs.forEach(c => { chairQueueMap[c.id] = []; });
+
+        // Sorted queue (chronological)
+        const sortedQueue = [...queue].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+
+        // First pass: assign customers with a specific barber preference
+        const anyCustomers = [];
+        sortedQueue.forEach(customer => {
+          if (customer.preferredBarberId === 'any') {
+            anyCustomers.push(customer);
+          } else if (chairQueueMap[customer.preferredBarberId]) {
+            chairQueueMap[customer.preferredBarberId].push(customer);
+          }
+        });
+
+        // Second pass: distribute 'any' customers round-robin across active chairs
+        const activeChairIds = chairs.filter(c => c.status === 'active').map(c => c.id);
+        if (activeChairIds.length > 0) {
+          anyCustomers.forEach((customer, idx) => {
+            const targetChairId = activeChairIds[idx % activeChairIds.length];
+            chairQueueMap[targetChairId].push(customer);
+          });
+        } else if (chairs.length > 0) {
+          // Fallback: if no active chairs, distribute across all chairs
+          anyCustomers.forEach((customer, idx) => {
+            const targetChairId = chairs[idx % chairs.length].id;
+            chairQueueMap[targetChairId].push(customer);
+          });
+        }
+
+        // Sort each chair's queue chronologically
+        Object.values(chairQueueMap).forEach(q => q.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt)));
+
+        return (
+          <div className={`stations-grid-container tab-active-${activeTab}`}>
+            {chairs.map((chair, index) => {
+              const chairQueue = chairQueueMap[chair.id] || [];
 
           // Cycle through color themes (blue, orange, purple) for any added stylists
           const themes = ['theme-blue', 'theme-orange', 'theme-purple'];
@@ -400,9 +436,11 @@ export default function ActiveChairs({
                 </div>
               </div>
             </div>
-          );
-        })}
-      </div>
+            );
+          })}
+          </div>
+        );
+      })()}
     </section>
   );
 }
