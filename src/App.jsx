@@ -176,12 +176,13 @@ export default function App() {
         setAllowCustomerJoin(data.allowCustomerJoin || false);
         setRequireAuth(data.requireAuth !== undefined ? data.requireAuth : true);
       } else {
-        // Initialize default settings doc
+        // Initialize default settings doc (merge: true prevents overwriting
+        // existing fields if another client already created the doc)
         setDoc(doc(db, 'settings', 'config'), {
           isShopOpen: true,
           allowCustomerJoin: false,
           requireAuth: true
-        });
+        }, { merge: true });
       }
     }, (error) => {
       console.warn("Settings configuration stream inactive:", error);
@@ -448,7 +449,7 @@ export default function App() {
   const handleToggleShopOpen = async () => {
     const nextShopState = !isShopOpen;
     try {
-      await updateDoc(doc(db, 'settings', 'config'), { isShopOpen: nextShopState });
+      await setDoc(doc(db, 'settings', 'config'), { isShopOpen: nextShopState }, { merge: true });
 
       if (nextShopState) {
         // Seating Sweep: check if any vacant active barbers can seat waiting clients
@@ -483,18 +484,22 @@ export default function App() {
   // Toggle Customer self join permissions
   const handleToggleAllowCustomerJoin = async () => {
     try {
-      await updateDoc(doc(db, 'settings', 'config'), { allowCustomerJoin: !allowCustomerJoin });
+      // Use setDoc with merge to ensure write succeeds even if the doc doesn't exist yet
+      await setDoc(doc(db, 'settings', 'config'), { allowCustomerJoin: !allowCustomerJoin }, { merge: true });
     } catch (err) {
       console.error("Firestore Toggle Allow Customer Join Failed:", err);
+      alert('Failed to update setting. Please check your internet connection or Firestore rules.');
     }
   };
 
   // Toggle requireAuth config
   const handleToggleRequireAuth = async () => {
     try {
-      await updateDoc(doc(db, 'settings', 'config'), { requireAuth: !requireAuth });
+      // Use setDoc with merge to ensure write succeeds even if the doc doesn't exist yet
+      await setDoc(doc(db, 'settings', 'config'), { requireAuth: !requireAuth }, { merge: true });
     } catch (err) {
       console.error("Firestore Toggle Require Auth Failed:", err);
+      alert('Failed to update setting. Please check your internet connection or Firestore rules.');
     }
   };
 

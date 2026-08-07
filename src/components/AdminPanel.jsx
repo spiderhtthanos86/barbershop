@@ -79,6 +79,18 @@ export default function AdminPanel({
             >
               <Users size={14} style={{ color: allowCustomerJoin ? 'var(--color-gold)' : 'inherit' }} />
               <span>{allowCustomerJoin ? 'Disable Customer Self-Join' : 'Enable Customer Self-Join'}</span>
+              <span style={{
+                fontSize: '9px',
+                fontWeight: 800,
+                padding: '2px 6px',
+                borderRadius: '50px',
+                background: allowCustomerJoin ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.1)',
+                color: allowCustomerJoin ? 'var(--color-accent-green)' : 'var(--color-accent-red)',
+                border: `1px solid ${allowCustomerJoin ? 'rgba(16, 185, 129, 0.3)' : 'rgba(239, 68, 68, 0.2)'}`,
+                marginLeft: '4px'
+              }}>
+                {allowCustomerJoin ? 'ON' : 'OFF'}
+              </span>
             </button>
 
             <button
@@ -88,7 +100,20 @@ export default function AdminPanel({
             >
               <ShieldAlert size={14} style={{ color: requireAuth ? 'var(--color-gold)' : 'inherit' }} />
               <span>{requireAuth ? 'Disable Google Auth' : 'Enable Google Auth'}</span>
+              <span style={{
+                fontSize: '9px',
+                fontWeight: 800,
+                padding: '2px 6px',
+                borderRadius: '50px',
+                background: requireAuth ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.1)',
+                color: requireAuth ? 'var(--color-accent-green)' : 'var(--color-accent-red)',
+                border: `1px solid ${requireAuth ? 'rgba(16, 185, 129, 0.3)' : 'rgba(239, 68, 68, 0.2)'}`,
+                marginLeft: '4px'
+              }}>
+                {requireAuth ? 'ON' : 'OFF'}
+              </span>
             </button>
+
             
             <button 
               className="btn-danger"
