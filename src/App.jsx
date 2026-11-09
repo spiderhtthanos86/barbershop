@@ -385,7 +385,7 @@ export default function App() {
       let seatedCustomer = null;
       let targetClientId = null;
 
-      if (isShopOpen) {
+      if (isShopOpen && activeChair.status !== 'break') {
         // Waitlist is already sorted chronologically via query subscription
         const nextCustomerDoc = queue.find(c => 
           c.preferredBarberId === 'any' || c.preferredBarberId === chairId

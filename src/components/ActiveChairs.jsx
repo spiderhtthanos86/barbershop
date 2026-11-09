@@ -1,11 +1,10 @@
-import React, { useState, useEffect, useMemo } from 'react';
+﻿import React, { useState, useEffect, useMemo } from 'react';
 import { Scissors, UserCheck, Coffee, Users, Trash2, Clock, XCircle } from 'lucide-react';
 
 function ChairCard({ chair, isAdmin, onCompleteCut, onToggleBreak, onRemoveWithoutService }) {
   const customer = chair.customer;
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
 
-  // Second-by-second elapsed stopwatch calculation
   useEffect(() => {
     if (!customer || !chair.startTime) {
       setElapsedSeconds(0);
@@ -34,15 +33,17 @@ function ChairCard({ chair, isAdmin, onCompleteCut, onToggleBreak, onRemoveWitho
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
+  const isBreak = chair.status === 'break';
+
   return (
-    <div className={`glass-panel chair-card chair-card-compact ${customer ? 'occupied glow-active' : 'empty'}`}>
+    <div className={`glass-panel chair-card chair-card-compact ${customer ? 'occupied glow-active' : isBreak ? 'chair-is-break' : 'empty'}`}>
       <div className="chair-header">
         <div className="barber-info">
           <div className="barber-avatar-container">
             <div className="barber-avatar">
               {chair.name.charAt(0)}
             </div>
-            <div className={`status-dot ${chair.status === 'break' ? 'break' : customer ? 'active' : 'offline'}`} />
+            <div className={`status-dot ${isBreak ? 'break' : customer ? 'active' : 'offline'}`} />
           </div>
           <div>
             <h3 className="barber-name">{chair.name}</h3>
@@ -50,16 +51,25 @@ function ChairCard({ chair, isAdmin, onCompleteCut, onToggleBreak, onRemoveWitho
           </div>
         </div>
 
-        {/* Top-right quick actions (like Toggle Break for empty chairs) */}
-        {isAdmin && !customer && (
-          <button
-            className={`icon-btn btn-break-toggle ${chair.status === 'break' ? 'on-break' : ''}`}
-            onClick={() => onToggleBreak(chair.id)}
-            title={chair.status === 'break' ? "End break" : "Take a short break"}
-          >
-            <Coffee size={14} style={{ color: chair.status === 'break' ? 'var(--color-accent-amber)' : 'inherit' }} />
-          </button>
-        )}
+        {/* Status Indicator & Break Toggle */}
+        <div className="chair-header-actions" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          {/* Status badge - visible to both Customer and Owner */}
+          <span className={`chair-status-pill ${isBreak ? 'pill-break' : customer ? 'pill-busy' : 'pill-free'}`}>
+            {isBreak ? 'â˜• On Break' : customer ? 'âœ‚ï¸ In Service' : 'ðŸŸ¢ Free'}
+          </span>
+
+          {/* Owner Break Button in Header (when chair is empty) */}
+          {isAdmin && !customer && (
+            <button
+              className={`btn-break-toggle ${isBreak ? 'on-break' : ''}`}
+              onClick={() => onToggleBreak(chair.id)}
+              title={isBreak ? "End break & make chair available" : "Put this chair on break"}
+            >
+              <Coffee size={13} style={{ color: isBreak ? 'var(--color-accent-amber)' : 'inherit' }} />
+              <span>{isBreak ? 'Resume' : 'Break'}</span>
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="chair-body">
@@ -110,10 +120,41 @@ function ChairCard({ chair, isAdmin, onCompleteCut, onToggleBreak, onRemoveWitho
           </div>
         ) : (
           <div className="empty-chair-placeholder">
-            <Scissors size={24} />
-            <span>
-              {chair.status === 'break' ? 'Barber on Break' : 'Chair Available'}
-            </span>
+            {isBreak ? (
+              <div className="chair-break-box">
+                <Coffee size={28} className="break-icon-amber" />
+                <span className="break-title-text">Barber on Short Break</span>
+                <span className="break-sub-text">Chair is paused Â· Not accepting next in line</span>
+                {isAdmin && (
+                  <button
+                    onClick={() => onToggleBreak(chair.id)}
+                    className="btn-primary btn-resume-chair"
+                    title="End break and allow auto-seating"
+                  >
+                    <UserCheck size={14} />
+                    <span>End Break (Make Free)</span>
+                  </button>
+                )}
+              </div>
+            ) : (
+              <div className="chair-available-box">
+                <Scissors size={26} className="available-icon-gold" />
+                <span className="available-title-text">Chair Available</span>
+                <span className="available-sub-text">
+                  {isAdmin ? 'Ready to seat next waiting client' : 'Ready for next client'}
+                </span>
+                {isAdmin && (
+                  <button
+                    onClick={() => onToggleBreak(chair.id)}
+                    className="btn-secondary btn-take-break-card"
+                    title="Take a short break"
+                  >
+                    <Coffee size={13} />
+                    <span>Put Chair on Break</span>
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -275,7 +316,7 @@ export default function ActiveChairs({
                                 </span>
                                 {isAdmin && customer.cost > 0 && (
                                   <span className="badge-cost">
-                                    ₹{customer.cost}
+                                    Ã¢â€šÂ¹{customer.cost}
                                   </span>
                                 )}
                                 {isMyTicket && (
