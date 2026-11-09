@@ -51,23 +51,31 @@ function ChairCard({ chair, isAdmin, onCompleteCut, onToggleBreak, onRemoveWitho
           </div>
         </div>
 
-        {/* Status Indicator & Break Toggle */}
+        {/* Right side of header: status label + owner break button */}
         <div className="chair-header-actions" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          {/* Status badge - visible to both Customer and Owner */}
-          <span className={`chair-status-pill ${isBreak ? 'pill-break' : customer ? 'pill-busy' : 'pill-free'}`}>
-            {isBreak ? 'On Break' : customer ? 'In Service' : 'Free'}
-          </span>
 
-          {/* Owner Break Button in Header (when chair is empty) */}
-          {isAdmin && !customer && (
-            <button
-              className={`btn-break-toggle ${isBreak ? 'on-break' : ''}`}
-              onClick={() => onToggleBreak(chair.id)}
-              title={isBreak ? "End break & make chair available" : "Put this chair on break"}
-            >
-              <Coffee size={13} style={{ color: isBreak ? 'var(--color-accent-amber)' : 'inherit' }} />
-              <span>{isBreak ? 'Resume' : 'Break'}</span>
-            </button>
+          {/* CUSTOMER VIEW: simple plain-text status only */}
+          {!isAdmin && (
+            <span className={`barber-state-label ${isBreak ? 'state-break' : 'state-active'}`}>
+              {isBreak ? 'On Break' : 'Active'}
+            </span>
+          )}
+
+          {/* OWNER VIEW: status pill + always-visible Break/Resume toggle button */}
+          {isAdmin && (
+            <>
+              <span className={`chair-status-pill ${isBreak ? 'pill-break' : customer ? 'pill-busy' : 'pill-free'}`}>
+                {isBreak ? 'On Break' : customer ? 'In Service' : 'Free'}
+              </span>
+              <button
+                className={`btn-break-toggle ${isBreak ? 'on-break' : ''}`}
+                onClick={() => onToggleBreak(chair.id)}
+                title={isBreak ? 'Resume — allow next customer to be seated' : 'Put barber on break — pause queue for this chair'}
+              >
+                <Coffee size={13} style={{ color: isBreak ? 'var(--color-accent-amber)' : 'inherit' }} />
+                <span>{isBreak ? 'Resume' : 'Break'}</span>
+              </button>
+            </>
           )}
         </div>
       </div>
@@ -89,7 +97,15 @@ function ChairCard({ chair, isAdmin, onCompleteCut, onToggleBreak, onRemoveWitho
                 Serving: <span className="stopwatch-value">{formatStopwatch(elapsedSeconds)}</span>
               </span>
             </div>
-            
+
+            {/* Owner: show break notice banner if barber is on break while serving */}
+            {isAdmin && isBreak && (
+              <div className="break-while-serving-notice">
+                <Coffee size={12} style={{ color: 'var(--color-accent-amber)' }} />
+                <span>Barber marked on break &mdash; queue paused after this client</span>
+              </div>
+            )}
+
             {/* Prominent Admin Checkout Action Button */}
             {isAdmin ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '8px' }}>
@@ -99,7 +115,7 @@ function ChairCard({ chair, isAdmin, onCompleteCut, onToggleBreak, onRemoveWitho
                   title="Complete session and automatically pull next customer in line"
                 >
                   <UserCheck size={14} />
-                  <span>Complete & Seat Next</span>
+                  <span>Complete &amp; Seat Next</span>
                 </button>
                 <button
                   onClick={() => onRemoveWithoutService(chair.id)}
@@ -110,13 +126,7 @@ function ChairCard({ chair, isAdmin, onCompleteCut, onToggleBreak, onRemoveWitho
                   <span>Remove without Service</span>
                 </button>
               </div>
-            ) : (
-              <div style={{ display: 'flex', gap: '6px', marginTop: '4px' }}>
-                <span className="active-service-badge">
-                  ACTIVE SESSION
-                </span>
-              </div>
-            )}
+            ) : null}
           </div>
         ) : (
           <div className="empty-chair-placeholder">
@@ -125,16 +135,6 @@ function ChairCard({ chair, isAdmin, onCompleteCut, onToggleBreak, onRemoveWitho
                 <Coffee size={28} className="break-icon-amber" />
                 <span className="break-title-text">Barber on Short Break</span>
                 <span className="break-sub-text">Chair is paused &middot; Not accepting next in line</span>
-                {isAdmin && (
-                  <button
-                    onClick={() => onToggleBreak(chair.id)}
-                    className="btn-primary btn-resume-chair"
-                    title="End break and allow auto-seating"
-                  >
-                    <UserCheck size={14} />
-                    <span>End Break (Make Free)</span>
-                  </button>
-                )}
               </div>
             ) : (
               <div className="chair-available-box">
@@ -143,16 +143,6 @@ function ChairCard({ chair, isAdmin, onCompleteCut, onToggleBreak, onRemoveWitho
                 <span className="available-sub-text">
                   {isAdmin ? 'Ready to seat next waiting client' : 'Ready for next client'}
                 </span>
-                {isAdmin && (
-                  <button
-                    onClick={() => onToggleBreak(chair.id)}
-                    className="btn-secondary btn-take-break-card"
-                    title="Take a short break"
-                  >
-                    <Coffee size={13} />
-                    <span>Put Chair on Break</span>
-                  </button>
-                )}
               </div>
             )}
           </div>
@@ -194,15 +184,15 @@ export default function ActiveChairs({
       }
     });
 
-    // Second pass: distribute 'any' customers round-robin across active chairs
-    const activeChairIds = chairs.filter(c => c.status === 'active').map(c => c.id);
+    // Second pass: distribute 'any' customers round-robin across ACTIVE (non-break) chairs only
+    const activeChairIds = chairs.filter(c => c.status !== 'break').map(c => c.id);
     if (activeChairIds.length > 0) {
       anyCustomers.forEach((customer, idx) => {
         const targetChairId = activeChairIds[idx % activeChairIds.length];
         map[targetChairId].push(customer);
       });
     } else if (chairs.length > 0) {
-      // Fallback: if no active chairs, distribute across all chairs
+      // Fallback: if ALL chairs are on break, still show queue under first chair
       anyCustomers.forEach((customer, idx) => {
         const targetChairId = chairs[idx % chairs.length].id;
         map[targetChairId].push(customer);
@@ -229,19 +219,19 @@ export default function ActiveChairs({
 
       {/* Horizontal capsule mobile-first tabs bar - HIDDEN on Laptop/Desktop screens via CSS! */}
       <div className="mobile-tab-bar">
-        <button 
+        <button
           className={`tab-pill ${activeTab === 'all' ? 'active' : ''}`}
           onClick={() => setActiveTab('all')}
         >
           All Stations ({chairs.length})
         </button>
         {chairs.map(chair => (
-          <button 
+          <button
             key={chair.id}
             className={`tab-pill ${activeTab === chair.id ? 'active' : ''}`}
             onClick={() => setActiveTab(chair.id)}
           >
-            {chair.name.split(' ')[0]} ({chair.customer ? 'Busy' : 'Free'})
+            {chair.name.split(' ')[0]} ({chair.status === 'break' ? 'Break' : chair.customer ? 'Busy' : 'Free'})
           </button>
         ))}
       </div>
@@ -257,14 +247,14 @@ export default function ActiveChairs({
           const colClass = `barber-col-${chair.id}`;
 
           return (
-            <div 
-              key={chair.id} 
+            <div
+              key={chair.id}
               className={`station-column ${themeClass} ${colClass}`}
               style={{ animation: 'fadeIn 0.3s ease-out' }}
             >
               {/* Styling Chair card */}
-              <ChairCard 
-                chair={chair} 
+              <ChairCard
+                chair={chair}
                 isAdmin={isAdmin}
                 onCompleteCut={onCompleteCut}
                 onToggleBreak={onToggleBreak}
@@ -299,8 +289,8 @@ export default function ActiveChairs({
                             : '';
 
                       return (
-                        <div 
-                          key={customer.id} 
+                        <div
+                          key={customer.id}
                           className={`queue-item-card ${itemStateClass}`}
                         >
                           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -308,7 +298,7 @@ export default function ActiveChairs({
                             <div className="queue-position" style={{ width: '24px', height: '24px', fontSize: '12px' }}>
                               {idx + 1}
                             </div>
-                            
+
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '1px', flex: 1, minWidth: 0 }}>
                               <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                                 <span className="queue-customer-name" style={{ fontSize: '13px' }}>
@@ -330,7 +320,7 @@ export default function ActiveChairs({
                                   </span>
                                 )}
                               </div>
-                              
+
                               {/* Shared tag */}
                               {isShared && (
                                 <span className="tag-next-available">
