@@ -1,26 +1,24 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 
 export default function SplashScreen({ onFinish }) {
-  const [phase, setPhase] = useState('enter');
+  const [exiting, setExiting] = useState(false);
 
-  useEffect(() => {
-    const t1 = setTimeout(() => setPhase('visible'), 100);
-    const t2 = setTimeout(() => setPhase('exit'), 2600);
-    const t3 = setTimeout(() => onFinish(), 3200);
-    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
-  }, [onFinish]);
+  const handleEnter = () => {
+    setExiting(true);
+    setTimeout(() => onFinish(), 500);
+  };
 
   return (
-    <div className={`splash-screen splash-${phase}`}>
-      {/* Shop front photo as full background */}
+    <div className={`splash-screen ${exiting ? 'splash-exit' : 'splash-visible'}`}>
+      {/* Clear shop front photo — NO heavy darkening */}
       <div className="splash-bg">
-        <img src="/shop-front.jpg" alt="" className="splash-bg-img" />
+        <img src="/shop-front.jpg" alt="Zone A Unisex Salon" className="splash-bg-img" />
         <div className="splash-bg-overlay" />
       </div>
 
-      {/* Content */}
+      {/* Content sits at bottom over the photo */}
       <div className="splash-content">
-        {/* Realistic scissors animation */}
+        {/* Scissors animation — loops forever */}
         <div className="scissors-container">
           <div className="scissor-blade blade-top">
             <div className="blade-body" />
@@ -31,7 +29,6 @@ export default function SplashScreen({ onFinish }) {
             <div className="blade-handle" />
           </div>
           <div className="scissor-pivot" />
-          {/* Hair strands falling */}
           <div className="hair-strands">
             <div className="strand s1" />
             <div className="strand s2" />
@@ -41,7 +38,7 @@ export default function SplashScreen({ onFinish }) {
           </div>
         </div>
 
-        {/* Salon name */}
+        {/* Brand */}
         <div className="splash-brand">
           <div className="splash-za-badge">ZA</div>
           <h1 className="splash-name">ZONE A</h1>
@@ -50,13 +47,14 @@ export default function SplashScreen({ onFinish }) {
             <span className="splash-label">UNISEX SALON</span>
             <span className="splash-line" />
           </div>
+          <p className="splash-tags">HAIR &ensp;·&ensp; BEAUTY &ensp;·&ensp; MAKEOVER</p>
         </div>
 
-        {/* Address */}
-        <div className="splash-info">
-          <p className="splash-addr">60 Ft. Road, Anna Chauraha, Chishti Nagar, Kanpur</p>
-          <p className="splash-phone">+91 8707271206 · 9807614216</p>
-        </div>
+        {/* Enter Shop button */}
+        <button className="splash-enter-btn" onClick={handleEnter}>
+          <span>Enter Shop</span>
+          <span className="splash-enter-arrow">→</span>
+        </button>
       </div>
     </div>
   );

@@ -1882,22 +1882,26 @@ button:active, .tab-pill:active, .icon-btn:active {
   inset: 0;
   background: linear-gradient(
     180deg,
-    rgba(0,0,0,0.5) 0%,
-    rgba(0,0,0,0.7) 40%,
-    rgba(10,10,10,0.92) 100%
+    rgba(0,0,0,0.05) 0%,
+    rgba(0,0,0,0.1) 30%,
+    rgba(10,10,10,0.8) 65%,
+    rgba(10,10,10,0.95) 100%
   );
 }
 
-/* Content */
+/* Content — sits at the bottom so shop image is visible on top */
 .splash-content {
-  position: relative;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
   z-index: 2;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 28px;
-  padding: 24px;
-  animation: splashContentUp 0.8s 0.2s ease both;
+  gap: 18px;
+  padding: 20px 24px 36px;
+  animation: splashContentUp 0.8s 0.3s ease both;
 }
 
 @keyframes splashContentUp {
@@ -2082,6 +2086,55 @@ button:active, .tab-pill:active, .icon-btn:active {
   opacity: 0.7;
   margin: 0;
   font-weight: 500;
+}
+
+/* Splash service tags */
+.splash-tags {
+  font-size: 10px;
+  color: rgba(245,245,240,0.4);
+  letter-spacing: 0.2em;
+  margin: 0;
+}
+
+/* Enter Shop button */
+.splash-enter-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 36px;
+  border: 1.5px solid var(--color-gold);
+  border-radius: 50px;
+  background: rgba(212,175,55,0.12);
+  color: var(--color-gold);
+  font-family: 'Outfit', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 6px;
+  animation: btnPulse 2s ease-in-out infinite;
+}
+
+.splash-enter-btn:hover {
+  background: linear-gradient(135deg, #D4AF37, #A88B28);
+  color: #0A0A0A;
+  box-shadow: 0 6px 28px rgba(212,175,55,0.45);
+  transform: translateY(-2px);
+}
+
+.splash-enter-arrow {
+  font-size: 18px;
+  transition: transform 0.2s;
+}
+
+.splash-enter-btn:hover .splash-enter-arrow {
+  transform: translateX(4px);
+}
+
+@keyframes btnPulse {
+  0%, 100% { box-shadow: 0 0 12px rgba(212,175,55,0.15); }
+  50%      { box-shadow: 0 0 24px rgba(212,175,55,0.35); }
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
