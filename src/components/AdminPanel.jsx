@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ShieldAlert, Plus, Users, Ban, RefreshCw, BarChart3, Clock, TrendingUp } from 'lucide-react';
+import ExportPanel from './ExportPanel';
 
 export default function AdminPanel({
   isShopOpen,
@@ -9,6 +10,7 @@ export default function AdminPanel({
   onAddBarber,
   onRemoveBarber,
   history,
+  allTimeHistory,
   barbers,
   allowCustomerJoin,
   toggleAllowCustomerJoin,
@@ -254,6 +256,8 @@ export default function AdminPanel({
             })}
           </div>
         </div>
+        {/* Export & Reports Card */}
+        <ExportPanel allTimeHistory={allTimeHistory} />
       </div>
     </section>
   );

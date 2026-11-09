@@ -119,6 +119,7 @@ export default function App() {
   const [barbers, setBarbers] = useState([]);
   const [queue, setQueue] = useState([]);
   const [history, setHistory] = useState([]);
+  const [allTimeHistory, setAllTimeHistory] = useState([]);
 
   // 1. Subscribe to Barbers/Chairs Collection (Real-Time)
   useEffect(() => {
@@ -167,7 +168,22 @@ export default function App() {
     return () => unsubscribe();
   }, []);
 
-  // 3b. Subscribe to global Settings configs (Real-Time)
+  // 3b. Subscribe to All-Time Permanent History Collection (Real-Time)
+  useEffect(() => {
+    const q = query(collection(db, 'allTimeHistory'), orderBy('completedAt', 'asc'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const list = [];
+      snapshot.forEach(doc => {
+        list.push({ id: doc.id, ...doc.data() });
+      });
+      setAllTimeHistory(list);
+    }, (error) => {
+      console.warn("All-Time History stream inactive:", error);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  // 3c. Subscribe to global Settings configs (Real-Time)
   useEffect(() => {
     const unsubscribe = onSnapshot(doc(db, 'settings', 'config'), (snapshot) => {
       if (snapshot.exists()) {
@@ -348,14 +364,18 @@ export default function App() {
 
       playSynthesizedSound('snip', soundEnabled);
 
-      // 1. Log completed haircut in history
-      await addDoc(collection(db, 'history'), {
+      // 1. Log completed haircut in history (daily log — can be reset by owner)
+      const cutRecord = {
         customerName: activeChair.customer.name,
         barberId: chairId,
         barberName: activeChair.name,
         cost: Number(activeChair.customer.cost) || 0,
         completedAt: new Date().toISOString()
-      });
+      };
+      await addDoc(collection(db, 'history'), cutRecord);
+
+      // 1b. Also log to permanent all-time history (NEVER deleted — used for Excel export)
+      await addDoc(collection(db, 'allTimeHistory'), cutRecord);
 
       // 2. Scan waitlist queue for next eligible client
       let seatedCustomer = null;
@@ -653,6 +673,7 @@ export default function App() {
               onAddBarber={handleAddBarber}
               onRemoveBarber={handleRemoveBarber}
               history={history}
+              allTimeHistory={allTimeHistory}
               barbers={barbers}
               allowCustomerJoin={allowCustomerJoin}
               toggleAllowCustomerJoin={handleToggleAllowCustomerJoin}
