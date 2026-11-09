@@ -21,9 +21,7 @@ export default function Header({
           <span className="za-logo-a">A</span>
         </div>
         <div className="header-title-area">
-          <span className="header-salon-label">Queue Management System</span>
           <h1 className="header-brand-name">Zone A <span className="header-brand-sub">Unisex Salon</span></h1>
-          <span className="header-tagline">Hair &nbsp;|&nbsp; Beauty &nbsp;|&nbsp; Makeover</span>
         </div>
       </div>
 
