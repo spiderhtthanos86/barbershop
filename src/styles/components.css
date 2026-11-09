@@ -2698,3 +2698,310 @@ button:active, .tab-pill:active, .icon-btn:active {
   margin-top: 4px;
   font-style: italic;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   RESPONSIVE DESIGN — Mobile · Tablet · Laptop · Desktop
+   Breakpoints:
+     Mobile  : < 480px
+     Tablet  : 480px – 768px
+     Laptop  : 768px – 1200px
+     Desktop : > 1200px
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── SPLASH SCREEN ─────────────────────────────────────────────────────── */
+
+/* Tablet & up: scale up logo */
+@media (min-width: 480px) {
+  .splash-logo-circle {
+    width: 260px;
+    height: 260px;
+  }
+  .splash-za-text { font-size: 68px; }
+  .splash-zone-a  { font-size: 24px; }
+  .splash-salon-row { font-size: 10px; }
+  .splash-services  { font-size: 9px; }
+  .splash-scissors  { font-size: 28px; }
+  .splash-cut-line  { width: 220px; }
+  .splash-address-line { font-size: 13px; }
+}
+
+/* Desktop: even bigger */
+@media (min-width: 1024px) {
+  .splash-logo-circle {
+    width: 300px;
+    height: 300px;
+  }
+  .splash-za-text { font-size: 80px; }
+  .splash-zone-a  { font-size: 28px; }
+  .splash-scissors-wrap { width: 280px; }
+  .splash-scissors { font-size: 32px; }
+}
+
+/* Small mobile: shrink slightly */
+@media (max-width: 360px) {
+  .splash-logo-circle {
+    width: 185px;
+    height: 185px;
+  }
+  .splash-za-text { font-size: 46px; }
+  .splash-zone-a  { font-size: 16px; }
+  .splash-address-line { font-size: 11px; }
+  .splash-scissors-wrap { width: 150px; }
+}
+
+/* ── LANDING PAGE ──────────────────────────────────────────────────────── */
+
+/* Tablet (480–768px): side by side cards, slightly more spacious */
+@media (min-width: 480px) {
+  .landing-page { padding: 36px 28px 48px; gap: 22px; }
+  .landing-logo-circle { width: 210px; height: 210px; }
+  .landing-za-text     { font-size: 54px; }
+  .landing-zone-a      { font-size: 20px; }
+  .landing-addr-row    { font-size: 12px; }
+  .landing-cards-row   { max-width: 580px; }
+  .landing-card        { padding: 32px 20px 28px; }
+  .landing-card-label  { font-size: 18px; }
+  .landing-card-sub    { font-size: 12px; }
+}
+
+/* Laptop (768px+): center everything, wider, desktop feel */
+@media (min-width: 768px) {
+  .landing-page {
+    padding: 48px 40px 60px;
+    justify-content: center;
+    min-height: 100vh;
+    gap: 28px;
+  }
+  .landing-logo-circle { width: 240px; height: 240px; }
+  .landing-za-text     { font-size: 62px; }
+  .landing-zone-a      { font-size: 22px; }
+  .landing-salon-row   { font-size: 10px; }
+  .landing-services-tag{ font-size: 8.5px; }
+  .landing-cards-row {
+    max-width: 640px;
+    gap: 24px;
+  }
+  .landing-card {
+    padding: 40px 24px 36px;
+    gap: 16px;
+  }
+  .landing-card-icon-wrap {
+    width: 72px;
+    height: 72px;
+  }
+  .landing-card-label  { font-size: 20px; }
+  .landing-card-sub    { font-size: 13px; }
+  .landing-card-arrow  { font-size: 24px; }
+  .landing-welcome-text{ font-size: 14px; }
+  .landing-addr-row    { font-size: 13px; }
+  .landing-divider { max-width: 420px; }
+}
+
+/* Large desktop (1200px+): constrain max-width, more spacing */
+@media (min-width: 1200px) {
+  .landing-logo-circle { width: 270px; height: 270px; }
+  .landing-za-text     { font-size: 72px; }
+  .landing-zone-a      { font-size: 25px; }
+  .landing-cards-row {
+    max-width: 720px;
+    gap: 32px;
+  }
+  .landing-card {
+    padding: 48px 32px 44px;
+    gap: 20px;
+  }
+  .landing-card-icon-wrap { width: 80px; height: 80px; }
+  .landing-card-label  { font-size: 22px; }
+}
+
+/* Very small mobile (< 360px): stack tighter */
+@media (max-width: 360px) {
+  .landing-page { padding: 24px 14px 32px; gap: 16px; }
+  .landing-logo-circle { width: 165px; height: 165px; }
+  .landing-za-text     { font-size: 42px; }
+  .landing-zone-a      { font-size: 15px; }
+  .landing-cards-row   { gap: 12px; }
+  .landing-card        { padding: 22px 14px 20px; }
+  .landing-card-label  { font-size: 15px; }
+  .landing-card-sub    { font-size: 10px; }
+  .landing-card-icon-wrap { width: 52px; height: 52px; }
+}
+
+/* ── MENU / RATE CARD PAGE ──────────────────────────────────────────────── */
+
+/* Tablet: 2-column service card grid */
+@media (min-width: 640px) {
+  .menu-cards-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    padding: 0 20px 28px;
+  }
+  .menu-page-header { padding: 18px 24px; }
+  .menu-gold-divider { padding: 14px 24px; }
+  .menu-page-footer  { padding: 24px 24px 40px; }
+}
+
+/* Laptop (768px+): wider layout, 2-col grid with more breathing room */
+@media (min-width: 768px) {
+  .menu-page {
+    max-width: 900px;
+    margin: 0 auto;
+    min-height: 100vh;
+  }
+  .menu-cards-list {
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    padding: 0 28px 32px;
+  }
+  .menu-page-header {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px 28px;
+    border-radius: 0 0 12px 12px;
+  }
+  .menu-gold-divider { padding: 16px 28px; }
+  .menu-page-za    { font-size: 28px; }
+  .menu-page-title { font-size: 20px; }
+  .menu-page-sub   { font-size: 11px; }
+  .menu-card-title { font-size: 16px; }
+  .menu-card-emoji { font-size: 22px; }
+  .menu-row-name   { font-size: 14px; }
+  .menu-row-price  { font-size: 14px; }
+  .menu-dual-name  { font-size: 14px; }
+  .menu-dual-price { font-size: 14px; }
+  .menu-dual-col   { font-size: 11px; }
+}
+
+/* Desktop (1024px+): 3-column grid where it fits, centered page */
+@media (min-width: 1024px) {
+  .menu-page {
+    max-width: 1100px;
+    border-left: 1px solid rgba(212,175,55,0.08);
+    border-right: 1px solid rgba(212,175,55,0.08);
+  }
+  .menu-cards-list {
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 18px;
+    padding: 0 32px 40px;
+  }
+  .menu-page-header {
+    padding: 22px 32px;
+  }
+  .menu-gold-divider { padding: 18px 32px; }
+}
+
+/* Small mobile menu page — single column, compact */
+@media (max-width: 360px) {
+  .menu-page-header { padding: 12px 14px; }
+  .menu-page-za     { font-size: 18px; }
+  .menu-page-title  { font-size: 14px; }
+  .menu-cards-list  { padding: 0 12px 20px; gap: 8px; }
+  .menu-card-header { padding: 12px 14px; }
+  .menu-card-title  { font-size: 13px; }
+  .menu-card-emoji  { font-size: 17px; }
+  .menu-row-name    { font-size: 12px; }
+  .menu-row-price   { font-size: 12px; }
+  .menu-dual-col    { font-size: 9px; }
+  .menu-dual-name   { font-size: 11px; }
+  .menu-dual-price  { font-size: 11px; }
+  .menu-bridal-pkg-name  { font-size: 13px; }
+  .menu-bridal-pkg-price { font-size: 15px; }
+  .menu-bridal-service-tag { font-size: 10px; padding: 2px 8px; }
+}
+
+/* ── MAIN APP — Header ─────────────────────────────────────────────────── */
+
+/* Mobile header: smaller gap, wrap actions */
+@media (max-width: 480px) {
+  .header-brand-name { font-size: 18px !important; }
+  .header-brand-sub  { font-size: 11px; }
+  .header-tagline    { display: none; } /* hidden on tiny screens */
+  .header-salon-label{ font-size: 9px; }
+  .za-logo-mark      { width: 42px; height: 42px; }
+  .za-logo-z, .za-logo-a { font-size: 18px; }
+}
+
+/* Laptop header: more spacious */
+@media (min-width: 1024px) {
+  .header-brand-name { font-size: 28px !important; }
+  .header-brand-sub  { font-size: 16px; }
+  .header-tagline    { font-size: 11px; }
+  .za-logo-mark      { width: 58px; height: 58px; }
+  .za-logo-z, .za-logo-a { font-size: 24px; }
+}
+
+/* ── MAIN APP — Stats Panel ────────────────────────────────────────────── */
+
+@media (max-width: 480px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .stats-grid {
+    grid-template-columns: repeat(4, 1fr) !important;
+  }
+}
+
+/* ── MAIN APP — Active Chairs / Queue ──────────────────────────────────── */
+
+@media (max-width: 480px) {
+  .chair-card { min-height: 160px; }
+}
+
+@media (min-width: 1200px) {
+  .dashboard-container { padding: 32px 40px; }
+  .chair-card          { min-height: 200px; }
+}
+
+/* ── MAIN APP — Admin Panel ────────────────────────────────────────────── */
+
+@media (min-width: 1024px) {
+  .admin-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1400px) {
+  .admin-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* ── MAIN APP — Join Queue Modal ───────────────────────────────────────── */
+
+@media (min-width: 768px) {
+  .modal-content {
+    max-width: 480px;
+    min-width: 420px;
+  }
+}
+
+/* ── MAIN APP — Live Tracking Banner ──────────────────────────────────── */
+
+@media (max-width: 480px) {
+  .live-tracking-panel {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .live-tracking-input {
+    width: 100%;
+  }
+}
+
+/* ── EXPORT PANEL — Responsive ─────────────────────────────────────────── */
+
+@media (max-width: 360px) {
+  .export-stat-value { font-size: 13px; }
+  .export-stat-label { font-size: 8px; }
+  .btn-export        { font-size: 11px; padding: 8px 12px; }
+}
+
+@media (min-width: 1024px) {
+  .export-stat-value { font-size: 18px; }
+  .export-buttons-list { flex-direction: row; flex-wrap: wrap; }
+  .btn-export        { flex: 1; justify-content: center; }
+}
