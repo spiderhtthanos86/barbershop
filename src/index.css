@@ -15,9 +15,8 @@
 body {
   background-color: var(--bg-primary);
   background-image:
-    radial-gradient(ellipse at 20% 10%, rgba(212, 175, 55, 0.07), transparent 50%),
-    radial-gradient(ellipse at 80% 90%, rgba(212, 175, 55, 0.05), transparent 50%),
-    radial-gradient(ellipse at 50% 50%, rgba(0, 0, 0, 0.6), transparent 70%);
+    radial-gradient(ellipse at 30% 20%, rgba(212, 175, 55, 0.06), transparent 50%),
+    radial-gradient(ellipse at 70% 80%, rgba(212, 175, 55, 0.04), transparent 50%);
   background-attachment: fixed;
   color: var(--color-text-primary);
   min-height: 100vh;

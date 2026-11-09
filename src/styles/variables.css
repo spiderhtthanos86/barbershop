@@ -1,21 +1,21 @@
 /* Zone A Unisex Salon — Design Tokens */
 
 :root {
-  /* ── Backgrounds — Pure black luxury like the menu cards ── */
-  --bg-primary: #0A0A0A;
-  --bg-secondary: #111111;
-  --bg-tertiary: #1A1A1A;
+  /* ── Backgrounds — Lighter dark for better readability ── */
+  --bg-primary: #121215;
+  --bg-secondary: #1A1A1F;
+  --bg-tertiary: #222228;
 
-  /* ── Gold palette — exact match to Zone A menu card gold ── */
+  /* ── Gold palette ── */
   --color-gold: #D4AF37;
   --color-gold-hover: #E8C84A;
   --color-gold-light: #F5E6A3;
   --color-gold-dim: #A88B28;
 
-  /* ── Text ── */
-  --color-text-primary: #F5F5F0;
-  --color-text-secondary: #A0998A;
-  --color-text-muted: #5A5248;
+  /* ── Text — brighter for better visibility ── */
+  --color-text-primary: #F8F8F5;
+  --color-text-secondary: #B5AFA2;
+  --color-text-muted: #706860;
 
   /* ── Accent colors ── */
   --color-accent-green: #4CAF7D;
@@ -25,7 +25,7 @@
   --color-accent-red: #E05252;
   --color-accent-red-glow: rgba(224, 82, 82, 0.25);
 
-  /* ── Chair card themes — all gold-toned for luxury feel ── */
+  /* ── Chair card themes — gold-toned ── */
   --theme-blue-primary: #D4AF37;
   --theme-blue-gradient: linear-gradient(135deg, #D4AF37 0%, #A88B28 100%);
   --theme-blue-glow: 0 8px 24px rgba(212, 175, 55, 0.3);
@@ -38,18 +38,18 @@
   --theme-purple-gradient: linear-gradient(135deg, #BFA050 0%, #7A6030 100%);
   --theme-purple-glow: 0 8px 24px rgba(191, 160, 80, 0.3);
 
-  /* ── Glass & Borders — gold-tinted glass panels ── */
-  --border-gold: rgba(212, 175, 55, 0.2);
-  --border-gold-focus: rgba(212, 175, 55, 0.5);
-  --border-light: rgba(255, 255, 255, 0.06);
-  --glass-bg: rgba(15, 13, 8, 0.80);
+  /* ── Glass & Borders — more visible panels ── */
+  --border-gold: rgba(212, 175, 55, 0.22);
+  --border-gold-focus: rgba(212, 175, 55, 0.55);
+  --border-light: rgba(255, 255, 255, 0.1);
+  --glass-bg: rgba(22, 20, 18, 0.82);
   --glass-blur: blur(20px);
 
   /* ── Shadows & Glows ── */
-  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.6);
-  --shadow-md: 0 12px 36px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(212, 175, 55, 0.08);
-  --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.9), inset 0 1px 1px rgba(212, 175, 55, 0.1);
-  --glow-gold: 0 0 25px rgba(212, 175, 55, 0.2);
+  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 12px 36px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.7), inset 0 1px 1px rgba(255, 255, 255, 0.12);
+  --glow-gold: 0 0 25px rgba(212, 175, 55, 0.22);
   --glow-gold-strong: 0 0 40px rgba(212, 175, 55, 0.45);
   --glow-green: 0 0 25px rgba(76, 175, 125, 0.3);
 
