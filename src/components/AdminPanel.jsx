@@ -110,7 +110,7 @@ export default function AdminPanel({
               onClick={onResetStats}
             >
               <RefreshCw size={14} />
-              <span>Reset Completed Log</span>
+              <span>Clear Today's Log</span>
             </button>
           </div>
         </div>

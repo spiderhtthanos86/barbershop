@@ -578,11 +578,16 @@ export default function App() {
     }
   };
 
-  // Reset Completed cuts history log
+  // Reset Completed cuts history log — only deletes TODAY's entries from 'history'
+  // allTimeHistory is NEVER touched here (permanent Excel archive)
   const handleResetStats = async () => {
-    if (!window.confirm("Are you sure you want to reset all completed services history logs?")) return;
+    if (!window.confirm("Are you sure you want to clear today's completed log from the screen?")) return;
     try {
-      for (const item of history) {
+      const todayStr = new Date().toDateString();
+      const todayItems = history.filter(
+        item => new Date(item.completedAt).toDateString() === todayStr
+      );
+      for (const item of todayItems) {
         await deleteDoc(doc(db, 'history', item.id));
       }
     } catch (err) {
