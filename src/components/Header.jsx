@@ -1,5 +1,5 @@
 import React from 'react';
-import { Shield, Volume2, VolumeX, PlusCircle, LogOut, Lock } from 'lucide-react';
+import { Shield, Volume2, VolumeX, PlusCircle, LogOut, Lock, ArrowLeft, BookOpen } from 'lucide-react';
 
 export default function Header({
   soundEnabled,
@@ -9,7 +9,8 @@ export default function Header({
   currentView,
   onPortalClick,
   onLogout,
-  allowCustomerJoin
+  allowCustomerJoin,
+  onBackToLanding
 }) {
   return (
     <header className="glass-panel header-wrapper">
@@ -48,6 +49,18 @@ export default function Header({
         >
           {soundEnabled ? <Volume2 size={20} /> : <VolumeX size={20} />}
         </button>
+
+        {/* Back to Home */}
+        {(currentView === 'customer' || currentView === 'owner') && onBackToLanding && (
+          <button
+            className="admin-toggle-btn"
+            onClick={onBackToLanding}
+            title="Back to Home"
+          >
+            <ArrowLeft size={14} />
+            <span>Home</span>
+          </button>
+        )}
 
         {/* Staff Portal */}
         {currentView === 'customer' && (

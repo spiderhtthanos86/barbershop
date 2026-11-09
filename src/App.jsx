@@ -7,6 +7,9 @@ import JoinQueueModal from './components/JoinQueueModal';
 import AdminPanel from './components/AdminPanel';
 import LoginScreen from './components/LoginScreen';
 import CustomerHistory from './components/CustomerHistory';
+import SplashScreen from './components/SplashScreen';
+import LandingPage from './components/LandingPage';
+import MenuPage from './components/MenuPage';
 
 // Import Firestore database reference and SDK methods
 import { db, auth } from './firebase';
@@ -109,10 +112,11 @@ export default function App() {
   const [allowCustomerJoin, setAllowCustomerJoin] = useState(false);
   const [requireAuth, setRequireAuth] = useState(true);
 
-  // Authentication View Controller
-  const [currentView, setCurrentView] = useState(() => {
+  // View Controller — starts with splash screen
+  const [currentView, setCurrentView] = useState('splash');
+  const [postSplashView] = useState(() => {
     const savedAuth = localStorage.getItem('trimtime_auth');
-    return savedAuth === 'true' ? 'owner' : 'customer';
+    return savedAuth === 'true' ? 'owner' : 'landing';
   });
 
   // Database-Backed States
@@ -595,6 +599,27 @@ export default function App() {
     }
   };
 
+  // Show splash screen first
+  if (currentView === 'splash') {
+    return <SplashScreen onFinish={() => setCurrentView(postSplashView)} />;
+  }
+
+  // Show landing page
+  if (currentView === 'landing') {
+    return (
+      <LandingPage
+        onRateCard={() => setCurrentView('menu')}
+        onBookCut={() => setCurrentView('customer')}
+        onStaffLogin={() => setCurrentView('login')}
+      />
+    );
+  }
+
+  // Show menu / rate card page
+  if (currentView === 'menu') {
+    return <MenuPage onBack={() => setCurrentView('landing')} />;
+  }
+
   return (
     <div className="dashboard-container">
       {/* Dynamic Header */}
@@ -607,6 +632,7 @@ export default function App() {
         onPortalClick={() => setCurrentView('login')}
         onLogout={handleLogout}
         allowCustomerJoin={allowCustomerJoin}
+        onBackToLanding={() => setCurrentView('landing')}
       />
 
       {/* Main View Manager */}
