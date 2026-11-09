@@ -1,4 +1,3 @@
-// C:\Users\himanshu\.gemini\antigravity\scratch\barber-queue-app\src\components\AdminPanel.jsx
 import React, { useState } from 'react';
 import { ShieldAlert, Plus, Users, Ban, RefreshCw, BarChart3, Clock, TrendingUp } from 'lucide-react';
 
@@ -44,13 +43,13 @@ export default function AdminPanel({
   });
 
   return (
-    <section className="glass-panel" style={{ marginTop: '12px' }}>
-      <h2 className="section-title" style={{ borderBottom: '1px solid var(--color-gold)' }}>
-        <span style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--color-gold)' }}>
+    <section className="glass-panel admin-section">
+      <h2 className="section-title admin-section-header">
+        <span className="admin-header-title">
           <ShieldAlert size={22} />
           Shop Owner Control Center
         </span>
-        <span style={{ fontSize: '11px', color: 'var(--color-accent-red)', fontWeight: 700, background: 'rgba(239, 68, 68, 0.1)', padding: '4px 10px', borderRadius: '50px' }}>
+        <span className="admin-badge">
           ADMIN MODE ACTIVE
         </span>
       </h2>
@@ -62,10 +61,10 @@ export default function AdminPanel({
             <RefreshCw size={16} className="text-gold" />
             Queue Operations
           </h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', flexGrow: 1, justifyContent: 'center' }}>
+          <div className="admin-ops-list">
             <button
-              className="btn-secondary"
-              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', border: !isShopOpen ? '1px solid var(--color-accent-amber)' : '' }}
+              className="btn-secondary btn-ops"
+              style={{ border: !isShopOpen ? '1px solid var(--color-accent-amber)' : undefined }}
               onClick={toggleShopOpen}
             >
               <Ban size={14} style={{ color: !isShopOpen ? 'var(--color-accent-amber)' : 'inherit' }} />
@@ -73,51 +72,31 @@ export default function AdminPanel({
             </button>
 
             <button
-              className="btn-secondary"
-              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', border: allowCustomerJoin ? '1.5px solid var(--color-gold)' : '' }}
+              className="btn-secondary btn-ops"
+              style={{ border: allowCustomerJoin ? '1.5px solid var(--color-gold)' : undefined }}
               onClick={toggleAllowCustomerJoin}
             >
               <Users size={14} style={{ color: allowCustomerJoin ? 'var(--color-gold)' : 'inherit' }} />
               <span>{allowCustomerJoin ? 'Disable Customer Self-Join' : 'Enable Customer Self-Join'}</span>
-              <span style={{
-                fontSize: '9px',
-                fontWeight: 800,
-                padding: '2px 6px',
-                borderRadius: '50px',
-                background: allowCustomerJoin ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.1)',
-                color: allowCustomerJoin ? 'var(--color-accent-green)' : 'var(--color-accent-red)',
-                border: `1px solid ${allowCustomerJoin ? 'rgba(16, 185, 129, 0.3)' : 'rgba(239, 68, 68, 0.2)'}`,
-                marginLeft: '4px'
-              }}>
+              <span className={`status-pill ${allowCustomerJoin ? 'on' : 'off'}`}>
                 {allowCustomerJoin ? 'ON' : 'OFF'}
               </span>
             </button>
 
             <button
-              className="btn-secondary"
-              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', border: requireAuth ? '1.5px solid var(--color-gold)' : '' }}
+              className="btn-secondary btn-ops"
+              style={{ border: requireAuth ? '1.5px solid var(--color-gold)' : undefined }}
               onClick={toggleRequireAuth}
             >
               <ShieldAlert size={14} style={{ color: requireAuth ? 'var(--color-gold)' : 'inherit' }} />
               <span>{requireAuth ? 'Disable Google Auth' : 'Enable Google Auth'}</span>
-              <span style={{
-                fontSize: '9px',
-                fontWeight: 800,
-                padding: '2px 6px',
-                borderRadius: '50px',
-                background: requireAuth ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.1)',
-                color: requireAuth ? 'var(--color-accent-green)' : 'var(--color-accent-red)',
-                border: `1px solid ${requireAuth ? 'rgba(16, 185, 129, 0.3)' : 'rgba(239, 68, 68, 0.2)'}`,
-                marginLeft: '4px'
-              }}>
+              <span className={`status-pill ${requireAuth ? 'on' : 'off'}`}>
                 {requireAuth ? 'ON' : 'OFF'}
               </span>
             </button>
-
             
             <button 
-              className="btn-danger"
-              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+              className="btn-danger btn-ops"
               onClick={onClearQueue}
             >
               <Users size={14} />
@@ -125,8 +104,7 @@ export default function AdminPanel({
             </button>
 
             <button
-              className="btn-secondary"
-              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+              className="btn-secondary btn-ops"
               onClick={onResetStats}
             >
               <RefreshCw size={14} />
@@ -169,16 +147,15 @@ export default function AdminPanel({
           </form>
 
           {barbers.length > 0 && (
-            <div style={{ marginTop: '8px', borderTop: '1px solid var(--border-gold)', paddingTop: '8px' }}>
-              <span style={{ fontSize: '11px', color: 'var(--color-text-secondary)', display: 'block', marginBottom: '6px' }}>
+            <div className="chair-remove-section">
+              <span className="chair-remove-label">
                 Remove Chair (Must be empty):
               </span>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+              <div className="chair-remove-list">
                 {barbers.map(barber => (
                   <button
                     key={barber.id}
-                    className="btn-danger"
-                    style={{ padding: '3px 8px', fontSize: '10px' }}
+                    className="btn-danger btn-remove-chair"
                     onClick={() => onRemoveBarber(barber.id)}
                   >
                     Remove {barber.name.split(' ')[0]}
@@ -196,26 +173,26 @@ export default function AdminPanel({
             Shop Earnings Report
           </h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', justifyContent: 'center', height: '100%' }}>
-            <div style={{ background: 'rgba(16, 185, 129, 0.08)', border: '1px solid rgba(16, 185, 129, 0.2)', borderRadius: '8px', padding: '12px', textAlign: 'center' }}>
-              <div style={{ fontSize: '10px', color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>All-Day Shop Revenue</div>
-              <div style={{ fontSize: '26px', fontWeight: 800, color: 'var(--color-accent-green)', fontFamily: 'Outfit', marginTop: '2px' }}>
+            <div className="revenue-stat-box">
+              <div className="revenue-stat-label">All-Day Shop Revenue</div>
+              <div className="revenue-stat-amount">
                 ₹{totalEarnings}
               </div>
-              <div style={{ fontSize: '9px', color: 'var(--color-text-muted)', marginTop: '2px' }}>
+              <div className="revenue-stat-sub">
                 From {history.length} completed cuts today
               </div>
             </div>
             
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              <span style={{ fontSize: '11px', color: 'var(--color-text-secondary)', fontWeight: 600 }}>Chair-Wise Breakdown:</span>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', maxHeight: '110px', overflowY: 'auto' }}>
+            <div className="chair-breakdown-wrapper">
+              <span className="chair-breakdown-title">Chair-Wise Breakdown:</span>
+              <div className="chair-earnings-list">
                 {chairEarnings.map(chair => (
-                  <div key={chair.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--bg-secondary)', padding: '6px 10px', borderRadius: '4px', border: '1px solid var(--border-light)' }}>
+                  <div key={chair.id} className="chair-earning-row">
                     <div>
-                      <span style={{ fontWeight: 600, fontSize: '11px', color: 'var(--color-text-primary)' }}>{chair.name.split(' ')[0]}</span>
-                      <span style={{ fontSize: '9px', color: 'var(--color-text-muted)' }}> ({chair.cutsCount} cuts)</span>
+                      <span className="chair-earning-name">{chair.name.split(' ')[0]}</span>
+                      <span className="chair-earning-cuts"> ({chair.cutsCount} cuts)</span>
                     </div>
-                    <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-gold)' }}>₹{chair.earnings}</span>
+                    <span className="chair-earning-val">₹{chair.earnings}</span>
                   </div>
                 ))}
               </div>
@@ -239,16 +216,7 @@ export default function AdminPanel({
               return (
                 <div key={barber.id} style={{ marginBottom: '14px' }}>
                   {/* Chair Header */}
-                  <div style={{ 
-                    fontSize: '12px', 
-                    fontWeight: 700, 
-                    color: 'var(--color-gold)', 
-                    borderBottom: '1px dashed rgba(197, 168, 128, 0.3)', 
-                    paddingBottom: '4px', 
-                    marginBottom: '6px',
-                    display: 'flex',
-                    justifyContent: 'space-between'
-                  }}>
+                  <div className="chair-group-header">
                     <span>{barber.name}</span>
                     <span style={{ color: 'var(--color-text-muted)', fontSize: '10px' }}>({barberHistory.length} served)</span>
                   </div>
@@ -257,7 +225,7 @@ export default function AdminPanel({
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                     {barberHistory.length > 0 ? (
                       [...barberHistory].reverse().map((item, idx) => (
-                        <div key={item.completedAt + idx} className="history-item" style={{ padding: '6px 10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div key={item.id || item.completedAt + idx} className="history-item" style={{ padding: '6px 10px' }}>
                           <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
                             <span className="history-name" style={{ fontSize: '12px', fontWeight: 600 }}>{item.customerName}</span>
                             {item.authorizedBy && (

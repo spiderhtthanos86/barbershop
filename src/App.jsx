@@ -1,4 +1,4 @@
-// C:\Users\himanshu\.gemini\antigravity\scratch\barber-queue-app\src\App.jsx
+
 import React, { useState, useEffect, useRef } from 'react';
 import Header from './components/Header';
 import StatsPanel from './components/StatsPanel';
@@ -601,18 +601,18 @@ export default function App() {
 
           {/* Customer Self-Tracking Input Banner */}
           {currentView === 'customer' && (
-            <div className="glass-panel" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap', padding: '12px 20px', marginTop: '-8px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <span style={{ fontSize: '20px' }}>🔍</span>
+            <div className="glass-panel live-tracking-panel">
+              <div className="live-tracking-info">
+                <span className="live-tracking-icon">🔍</span>
                 <div>
-                  <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-gold)' }}>Track Your Turn Live</div>
-                  <div style={{ fontSize: '11px', color: 'var(--color-text-secondary)' }}>Enter your name to highlight your ticket in the queues below</div>
+                  <div className="live-tracking-title">Track Your Turn Live</div>
+                  <div className="live-tracking-subtitle">Enter your name to highlight your ticket in the queues below</div>
                 </div>
               </div>
               <input
                 type="text"
-                className="form-input"
-                style={{ maxWidth: '280px', padding: '8px 12px', fontSize: '13px' }}
+                className="form-input live-tracking-input"
+                
                 placeholder="Enter your name..."
                 value={trackName}
                 onChange={(e) => {
@@ -624,7 +624,7 @@ export default function App() {
           )}
 
           {/* Primary Main Stations viewport */}
-          <main style={{ width: '100%' }}>
+          <main className="main-stations-container">
             <ActiveChairs
               chairs={barbers}
               isAdmin={currentView === 'owner'}

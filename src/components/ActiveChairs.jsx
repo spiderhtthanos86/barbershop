@@ -1,6 +1,5 @@
-// C:\Users\himanshu\.gemini\antigravity\scratch\barber-queue-app\src\components\ActiveChairs.jsx
-import React, { useState, useEffect } from 'react';
-import { Scissors, UserCheck, Coffee, Users, Trash2, UserX, Clock, XCircle } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Scissors, UserCheck, Coffee, Users, Trash2, Clock, XCircle } from 'lucide-react';
 
 function ChairCard({ chair, isAdmin, onCompleteCut, onToggleBreak, onRemoveWithoutService }) {
   const customer = chair.customer;
@@ -36,7 +35,7 @@ function ChairCard({ chair, isAdmin, onCompleteCut, onToggleBreak, onRemoveWitho
   };
 
   return (
-    <div className={`glass-panel chair-card ${customer ? 'occupied glow-active' : 'empty'}`} style={{ minHeight: '190px', margin: 0 }}>
+    <div className={`glass-panel chair-card chair-card-compact ${customer ? 'occupied glow-active' : 'empty'}`}>
       <div className="chair-header">
         <div className="barber-info">
           <div className="barber-avatar-container">
@@ -54,8 +53,7 @@ function ChairCard({ chair, isAdmin, onCompleteCut, onToggleBreak, onRemoveWitho
         {/* Top-right quick actions (like Toggle Break for empty chairs) */}
         {isAdmin && !customer && (
           <button
-            className="icon-btn"
-            style={{ width: '32px', height: '32px', border: chair.status === 'break' ? '1px solid var(--color-accent-amber)' : '1px solid var(--border-gold)' }}
+            className={`icon-btn btn-break-toggle ${chair.status === 'break' ? 'on-break' : ''}`}
             onClick={() => onToggleBreak(chair.id)}
             title={chair.status === 'break' ? "End break" : "Take a short break"}
           >
@@ -67,7 +65,7 @@ function ChairCard({ chair, isAdmin, onCompleteCut, onToggleBreak, onRemoveWitho
       <div className="chair-body">
         {customer ? (
           <div className="active-customer-container" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-            <span style={{ fontSize: '10px', color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            <span className="customer-serving-label">
               Currently Serving
             </span>
             <div className="active-customer-name" style={{ fontSize: '18px' }}>
@@ -75,20 +73,10 @@ function ChairCard({ chair, isAdmin, onCompleteCut, onToggleBreak, onRemoveWitho
             </div>
 
             {/* Live Elapsed Serving Stopwatch - Visible to BOTH Customer and Owner! */}
-            <div style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: '6px', 
-              marginTop: '4px',
-              background: 'rgba(255, 255, 255, 0.04)',
-              border: '1px solid var(--border-light)',
-              padding: '4px 10px',
-              borderRadius: '6px',
-              width: 'fit-content'
-            }}>
-              <Clock size={12} className="text-gold" style={{ opacity: 0.8 }} />
-              <span style={{ fontSize: '11px', fontWeight: 650, color: 'var(--color-text-secondary)' }}>
-                Serving: <span style={{ color: 'var(--color-text-primary)', fontFamily: 'monospace', fontSize: '12px' }}>{formatStopwatch(elapsedSeconds)}</span>
+            <div className="stopwatch-container">
+              <Clock size={12} className="text-gold stopwatch-icon" />
+              <span className="stopwatch-label">
+                Serving: <span className="stopwatch-value">{formatStopwatch(elapsedSeconds)}</span>
               </span>
             </div>
             
@@ -97,18 +85,7 @@ function ChairCard({ chair, isAdmin, onCompleteCut, onToggleBreak, onRemoveWitho
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '8px' }}>
                 <button
                   onClick={() => onCompleteCut(chair.id)}
-                  className="btn-primary"
-                  style={{
-                    padding: '8px 12px',
-                    fontSize: '12px',
-                    background: 'linear-gradient(135deg, var(--color-accent-green) 0%, #059669 100%)',
-                    color: '#fff',
-                    width: '100%',
-                    justifyContent: 'center',
-                    boxShadow: '0 4px 12px rgba(16, 185, 129, 0.25)',
-                    border: 'none',
-                    borderRadius: 'var(--radius-sm)'
-                  }}
+                  className="btn-primary btn-complete-service"
                   title="Complete session and automatically pull next customer in line"
                 >
                   <UserCheck size={14} />
@@ -116,21 +93,7 @@ function ChairCard({ chair, isAdmin, onCompleteCut, onToggleBreak, onRemoveWitho
                 </button>
                 <button
                   onClick={() => onRemoveWithoutService(chair.id)}
-                  className="btn-primary"
-                  style={{
-                    padding: '6px 10px',
-                    fontSize: '11px',
-                    background: 'rgba(239, 68, 68, 0.1)',
-                    color: 'var(--color-accent-red, #ef4444)',
-                    width: '100%',
-                    justifyContent: 'center',
-                    border: '1px solid rgba(239, 68, 68, 0.25)',
-                    borderRadius: 'var(--radius-sm)',
-                    boxShadow: 'none',
-                    transition: 'all 0.2s'
-                  }}
-                  onMouseOver={(e) => { e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)'; }}
-                  onMouseOut={(e) => { e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)'; }}
+                  className="btn-remove-service"
                   title="Remove customer from chair without logging service or cost"
                 >
                   <XCircle size={13} />
@@ -169,17 +132,56 @@ export default function ActiveChairs({
   myTicketId,
   trackName = ''
 }) {
-  // Mobile Capsule Tab Selector: 'all' or specific barber id (Only active on mobile widths via CSS!)
+  // Mobile Capsule Tab Selector: 'all' or specific barber id
   const [activeTab, setActiveTab] = useState('all');
 
+  // Memoize queue distribution across chairs so it only re-computes when chairs or queue changes
+  const chairQueueMap = useMemo(() => {
+    const map = {};
+    chairs.forEach(c => { map[c.id] = []; });
+
+    // Sorted queue (chronological)
+    const sortedQueue = [...queue].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+
+    // First pass: assign customers with a specific barber preference
+    const anyCustomers = [];
+    sortedQueue.forEach(customer => {
+      if (customer.preferredBarberId === 'any') {
+        anyCustomers.push(customer);
+      } else if (map[customer.preferredBarberId]) {
+        map[customer.preferredBarberId].push(customer);
+      }
+    });
+
+    // Second pass: distribute 'any' customers round-robin across active chairs
+    const activeChairIds = chairs.filter(c => c.status === 'active').map(c => c.id);
+    if (activeChairIds.length > 0) {
+      anyCustomers.forEach((customer, idx) => {
+        const targetChairId = activeChairIds[idx % activeChairIds.length];
+        map[targetChairId].push(customer);
+      });
+    } else if (chairs.length > 0) {
+      // Fallback: if no active chairs, distribute across all chairs
+      anyCustomers.forEach((customer, idx) => {
+        const targetChairId = chairs[idx % chairs.length].id;
+        map[targetChairId].push(customer);
+      });
+    }
+
+    // Sort each chair's queue chronologically
+    Object.values(map).forEach(q => q.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt)));
+
+    return map;
+  }, [chairs, queue]);
+
   return (
-    <section className="glass-panel" style={{ width: '100%' }}>
+    <section className="glass-panel main-stations-container">
       <h2 className="section-title">
-        <span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <span className="section-title-left">
           <Scissors size={22} className="text-gold" />
           Styling Stations
         </span>
-        <span style={{ fontSize: '12px', fontWeight: 500, color: 'var(--color-text-secondary)' }}>
+        <span className="section-title-count">
           {chairs.length} Active Barbers
         </span>
       </h2>
@@ -203,53 +205,10 @@ export default function ActiveChairs({
         ))}
       </div>
 
-      {/* 
-        Parent Stations Grid.
-        Includes a tab-active-${activeTab} class to let pure CSS hide columns on Mobile, 
-        while Laptop screens show all columns side-by-side simultaneously!
-      */}
-      {/* Pre-compute waitlist distribution: assign 'any' customers to chairs
-          in round-robin so each person appears exactly once */}
-      {(() => {
-        // Build a map of chairId -> queue entries
-        const chairQueueMap = {};
-        chairs.forEach(c => { chairQueueMap[c.id] = []; });
-
-        // Sorted queue (chronological)
-        const sortedQueue = [...queue].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
-
-        // First pass: assign customers with a specific barber preference
-        const anyCustomers = [];
-        sortedQueue.forEach(customer => {
-          if (customer.preferredBarberId === 'any') {
-            anyCustomers.push(customer);
-          } else if (chairQueueMap[customer.preferredBarberId]) {
-            chairQueueMap[customer.preferredBarberId].push(customer);
-          }
-        });
-
-        // Second pass: distribute 'any' customers round-robin across active chairs
-        const activeChairIds = chairs.filter(c => c.status === 'active').map(c => c.id);
-        if (activeChairIds.length > 0) {
-          anyCustomers.forEach((customer, idx) => {
-            const targetChairId = activeChairIds[idx % activeChairIds.length];
-            chairQueueMap[targetChairId].push(customer);
-          });
-        } else if (chairs.length > 0) {
-          // Fallback: if no active chairs, distribute across all chairs
-          anyCustomers.forEach((customer, idx) => {
-            const targetChairId = chairs[idx % chairs.length].id;
-            chairQueueMap[targetChairId].push(customer);
-          });
-        }
-
-        // Sort each chair's queue chronologically
-        Object.values(chairQueueMap).forEach(q => q.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt)));
-
-        return (
-          <div className={`stations-grid-container tab-active-${activeTab}`}>
-            {chairs.map((chair, index) => {
-              const chairQueue = chairQueueMap[chair.id] || [];
+      {/* Parent Stations Grid */}
+      <div className={`stations-grid-container tab-active-${activeTab}`}>
+        {chairs.map((chair, index) => {
+          const chairQueue = chairQueueMap[chair.id] || [];
 
           // Cycle through color themes (blue, orange, purple) for any added stylists
           const themes = ['theme-blue', 'theme-orange', 'theme-purple'];
@@ -272,67 +231,36 @@ export default function ActiveChairs({
               />
 
               {/* Specific Waitlist Column directly below chair */}
-              <div className="glass-panel" style={{ 
-                background: 'var(--bg-secondary)', 
-                borderWidth: '1px',
-                borderRadius: 'var(--radius-md)', 
-                padding: '12px 14px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '10px',
-                minHeight: '120px'
-              }}>
-                <div style={{ 
-                  display: 'flex', 
-                  justifyContent: 'space-between', 
-                  alignItems: 'center',
-                  borderBottom: '1px solid var(--border-gold)',
-                  paddingBottom: '6px',
-                  marginBottom: '2px'
-                }}>
-                  <span style={{ fontStyle: 'normal', fontWeight: 700, fontSize: '13px', color: 'var(--color-gold)' }}>
+              <div className="glass-panel waitlist-column-panel">
+                <div className="waitlist-column-header">
+                  <span className="waitlist-barber-title">
                     {chair.name.split(' ')[0]}'s Waitlist
                   </span>
-                  <span style={{ fontSize: '10px', color: 'var(--color-text-secondary)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <span className="waitlist-count-badge">
                     <Users size={11} />
                     {chairQueue.length} waiting
                   </span>
                 </div>
 
-                <div style={{ 
-                  display: 'flex', 
-                  flexDirection: 'column', 
-                  gap: '6px', 
-                  overflowY: 'auto',
-                  maxHeight: '280px',
-                  paddingRight: '2px'
-                }}>
+                <div className="waitlist-items-container">
                   {chairQueue.length > 0 ? (
                     chairQueue.map((customer, idx) => {
                       const isMyTicket = customer.id === myTicketId;
                       const isTracked = trackName && customer.name.trim().toLowerCase() === trackName.trim().toLowerCase();
                       const isShared = customer.preferredBarberId === 'any';
 
+                      const itemStateClass = isTracked
+                        ? 'is-tracked'
+                        : isMyTicket
+                          ? 'is-my-ticket'
+                          : isShared
+                            ? 'is-shared'
+                            : '';
+
                       return (
                         <div 
                           key={customer.id} 
-                          className="queue-item-card"
-                          style={{
-                            padding: '8px 10px',
-                            border: isTracked
-                              ? '1.5px solid #00d2ff'
-                              : isMyTicket 
-                                ? '1.5px solid var(--color-gold)' 
-                                : isShared 
-                                  ? '1px dashed rgba(255, 255, 255, 0.15)' 
-                                  : '1px solid var(--border-gold)',
-                            boxShadow: isTracked
-                              ? '0 0 12px rgba(0, 210, 255, 0.25)'
-                              : isMyTicket 
-                                ? '0 0 10px rgba(197, 168, 128, 0.1)' 
-                                : 'none',
-                            animation: 'slideInUp 0.25s ease-out'
-                          }}
+                          className={`queue-item-card ${itemStateClass}`}
                         >
                           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                             {/* Position badge */}
@@ -346,43 +274,17 @@ export default function ActiveChairs({
                                   {customer.name}
                                 </span>
                                 {isAdmin && customer.cost > 0 && (
-                                  <span style={{
-                                    background: 'rgba(16, 185, 129, 0.1)',
-                                    color: 'var(--color-accent-green)',
-                                    border: '1px solid rgba(16, 185, 129, 0.2)',
-                                    fontSize: '9px',
-                                    fontWeight: 700,
-                                    padding: '1px 5px',
-                                    borderRadius: '3px',
-                                    whiteSpace: 'nowrap'
-                                  }}>
+                                  <span className="badge-cost">
                                     ₹{customer.cost}
                                   </span>
                                 )}
                                 {isMyTicket && (
-                                  <span style={{
-                                    background: 'var(--color-gold)',
-                                    color: 'var(--bg-primary)',
-                                    fontSize: '8px',
-                                    fontWeight: 800,
-                                    padding: '1px 3px',
-                                    borderRadius: '2px',
-                                    textTransform: 'uppercase'
-                                  }}>
+                                  <span className="badge-my-ticket">
                                     You
                                   </span>
                                 )}
                                 {isTracked && !isMyTicket && (
-                                  <span style={{
-                                    background: '#00d2ff',
-                                    color: 'var(--bg-primary)',
-                                    fontSize: '8px',
-                                    fontWeight: 800,
-                                    padding: '1px 4px',
-                                    borderRadius: '2px',
-                                    textTransform: 'uppercase',
-                                    boxShadow: '0 0 6px rgba(0, 210, 255, 0.4)'
-                                  }}>
+                                  <span className="badge-tracked">
                                     You
                                   </span>
                                 )}
@@ -390,17 +292,7 @@ export default function ActiveChairs({
                               
                               {/* Shared tag */}
                               {isShared && (
-                                <span style={{
-                                  background: 'rgba(245, 158, 11, 0.1)',
-                                  color: 'var(--color-accent-amber)',
-                                  border: '1px solid rgba(245, 158, 11, 0.2)',
-                                  padding: '1px 4px',
-                                  borderRadius: '3px',
-                                  fontSize: '7px',
-                                  fontWeight: 600,
-                                  width: 'fit-content',
-                                  textTransform: 'uppercase'
-                                }}>
+                                <span className="tag-next-available">
                                   Next Available
                                 </span>
                               )}
@@ -410,10 +302,9 @@ export default function ActiveChairs({
                           {/* Delete actions */}
                           {isAdmin && (
                             <button
-                              className="remove-queue-btn"
+                              className="remove-queue-btn btn-remove-queue"
                               onClick={() => onRemoveFromQueue(customer.id)}
                               title="Remove customer"
-                              style={{ padding: '4px' }}
                             >
                               <Trash2 size={12} />
                             </button>
@@ -422,25 +313,16 @@ export default function ActiveChairs({
                       );
                     })
                   ) : (
-                    <div style={{ 
-                      padding: '20px 10px', 
-                      color: 'var(--color-text-muted)', 
-                      fontSize: '11px', 
-                      textAlign: 'center',
-                      border: '1px dashed var(--border-gold)',
-                      borderRadius: 'var(--radius-md)'
-                    }}>
+                    <div className="empty-queue-placeholder">
                       No one in line
                     </div>
                   )}
                 </div>
               </div>
             </div>
-            );
-          })}
-          </div>
-        );
-      })()}
+          );
+        })}
+      </div>
     </section>
   );
 }

@@ -1,4 +1,3 @@
-// C:\Users\himanshu\.gemini\antigravity\scratch\barber-queue-app\src\components\JoinQueueModal.jsx
 import React, { useState } from 'react';
 import { X, Check, User, AlertCircle, ShieldCheck } from 'lucide-react';
 import { auth, googleProvider } from '../firebase';
@@ -143,8 +142,8 @@ export default function JoinQueueModal({
         {/* iOS-Style Bottom Sheet Drag Handle */}
         <div className="bottom-sheet-handle" />
 
-        <div className="modal-header" style={{ marginBottom: '16px' }}>
-          <h2 className="modal-title" style={{ fontSize: '20px' }}>
+        <div className="modal-header">
+          <h2 className="modal-title">
             {step === 'form' ? 'Add Walk-In Client' : 'Google Verification'}
           </h2>
           <button className="modal-close-btn" onClick={handleClose}>
@@ -153,20 +152,8 @@ export default function JoinQueueModal({
         </div>
 
         {error && (
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            background: 'rgba(239, 68, 68, 0.1)',
-            border: '1px solid rgba(239, 68, 68, 0.2)',
-            color: 'var(--color-accent-red)',
-            padding: '10px 14px',
-            borderRadius: 'var(--radius-md)',
-            fontSize: '11px',
-            lineHeight: '1.4',
-            marginBottom: '16px'
-          }}>
-            <AlertCircle size={14} style={{ flexShrink: 0 }} />
+          <div className="modal-error-alert">
+            <AlertCircle size={14} />
             <span>{error}</span>
           </div>
         )}
@@ -175,14 +162,13 @@ export default function JoinQueueModal({
           <form onSubmit={handleSubmit}>
             {/* Name Input */}
             <div className="form-group">
-              <label className="form-label" htmlFor="customer-name" style={{ fontSize: '11px' }}>Client Name</label>
+              <label className="form-label" htmlFor="customer-name">Client Name</label>
               <div style={{ position: 'relative' }}>
-                <User size={16} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-gold)' }} />
+                <User size={16} className="input-icon-gold" />
                 <input
                   id="customer-name"
-                  className="form-input"
+                  className="form-input input-with-icon"
                   type="text"
-                  style={{ paddingLeft: '42px', width: '100%', fontSize: '16px' }}
                   placeholder="Enter client's name..."
                   value={name}
                   onChange={(e) => setName(e.target.value)}
@@ -195,7 +181,7 @@ export default function JoinQueueModal({
 
             {/* Barber Selector */}
             <div className="form-group">
-              <label className="form-label" htmlFor="barber-select" style={{ fontSize: '11px' }}>Barber Preference</label>
+              <label className="form-label" htmlFor="barber-select">Barber Preference</label>
               <select
                 id="barber-select"
                 className="form-select"
@@ -214,26 +200,16 @@ export default function JoinQueueModal({
 
             {/* Service Cost (Rupees) */}
             <div className="form-group">
-              <label className="form-label" htmlFor="service-cost" style={{ fontSize: '11px' }}>Cutting Cost (₹)</label>
+              <label className="form-label" htmlFor="service-cost">Cutting Cost (₹)</label>
               <div style={{ position: 'relative' }}>
-                <span style={{ 
-                  position: 'absolute', 
-                  left: '16px', 
-                  top: '50%', 
-                  transform: 'translateY(-50%)', 
-                  color: 'var(--color-gold)',
-                  fontFamily: 'Outfit',
-                  fontWeight: 700,
-                  fontSize: '16px'
-                }}>
+                <span className="currency-prefix">
                   ₹
                 </span>
                 <input
                   id="service-cost"
-                  className="form-input"
+                  className="form-input input-with-icon"
                   type="number"
                   min="0"
-                  style={{ paddingLeft: '42px', width: '100%', fontSize: '16px' }}
                   placeholder="0"
                   value={cost}
                   onChange={(e) => setCost(e.target.value)}
@@ -244,26 +220,26 @@ export default function JoinQueueModal({
 
             {/* Ticket Live Preview Card */}
             {name.trim().length > 0 && (
-              <div className="ticket-preview" style={{ padding: '16px', marginTop: '16px' }}>
-                <div className="ticket-header" style={{ fontSize: '12px', letterSpacing: '0.05em', marginBottom: '12px' }}>
+              <div className="ticket-preview">
+                <div className="ticket-header">
                   VIRTUAL WAIT TICKET
                 </div>
-                <div style={{ fontSize: '10px', color: 'var(--color-text-secondary)' }}>CLIENT NAME</div>
+                <div className="ticket-summary-label">CLIENT NAME</div>
                 <div style={{ fontSize: '18px', fontWeight: 800, color: 'var(--color-text-primary)', fontFamily: 'Outfit' }}>
                   {name}
                 </div>
-                <div className="ticket-number" style={{ fontSize: '24px', color: 'var(--color-gold)', margin: '10px 0' }}>
+                <div className="ticket-number">
                   QUEUED
                 </div>
-                <div className="ticket-details" style={{ display: 'flex', justifyContent: 'space-around', marginTop: '16px' }}>
+                <div className="ticket-details">
                   <div>
-                    <div style={{ color: 'var(--color-text-muted)', fontSize: '9px' }}>ASSIGNED LINE</div>
+                    <div className="ticket-summary-label">ASSIGNED LINE</div>
                     <div style={{ fontWeight: 700, color: 'var(--color-text-primary)', fontSize: '12px', marginTop: '2px' }}>
                       {preferredBarberId === 'any' ? 'Next Available' : barbers.find(b => b.id === preferredBarberId)?.name.split(' ')[0]}
                     </div>
                   </div>
                   <div>
-                    <div style={{ color: 'var(--color-text-muted)', fontSize: '9px' }}>SERVICE COST</div>
+                    <div className="ticket-summary-label">SERVICE COST</div>
                     <div style={{ fontWeight: 700, color: 'var(--color-accent-green)', fontSize: '12px', marginTop: '2px' }}>
                       ₹ {cost || 0}
                     </div>
@@ -275,8 +251,7 @@ export default function JoinQueueModal({
             {/* Action Button */}
             <button 
               type="submit" 
-              className="btn-primary" 
-              style={{ width: '100%', justifyContent: 'center', marginTop: '20px', padding: '12px' }}
+              className="btn-primary modal-submit-btn" 
             >
               <Check size={18} />
               <span>Confirm & Add to Line</span>
@@ -285,44 +260,26 @@ export default function JoinQueueModal({
         )}
 
         {step === 'google-auth' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', animation: 'slideInUp 0.3s ease-out' }}>
-            <div style={{ textAlign: 'center', margin: '8px 0' }}>
-              <div style={{
-                width: '44px',
-                height: '44px',
-                borderRadius: '50%',
-                background: 'rgba(197, 168, 128, 0.1)',
-                border: '1.5px solid var(--color-gold)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                margin: '0 auto 12px'
-              }}>
+          <div className="google-auth-wrapper">
+            <div className="google-auth-center">
+              <div className="google-icon-box">
                 <ShieldCheck size={20} className="text-gold" />
               </div>
-              <h3 style={{ fontSize: '16px', fontWeight: 800, color: 'var(--color-text-primary)' }}>Google Verification Required</h3>
-              <p style={{ fontSize: '11px', color: 'var(--color-text-secondary)', marginTop: '4px', lineHeight: '1.4' }}>
+              <h3 className="google-auth-heading">Google Verification Required</h3>
+              <p className="google-auth-desc">
                 Sign in with your real Google account to verify your identity and join the queue.
               </p>
             </div>
 
             {/* Ticket summary before auth */}
-            <div style={{ 
-              background: 'var(--bg-secondary)', 
-              border: '1px solid var(--border-light)', 
-              borderRadius: '8px', 
-              padding: '12px',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center'
-            }}>
+            <div className="ticket-summary-card">
               <div>
-                <div style={{ fontSize: '10px', color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>Client</div>
-                <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--color-text-primary)' }}>{name}</div>
+                <div className="ticket-summary-label">Client</div>
+                <div className="ticket-summary-name">{name}</div>
               </div>
               <div style={{ textAlign: 'right' }}>
-                <div style={{ fontSize: '10px', color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>Cost</div>
-                <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--color-accent-green)' }}>₹{cost || 0}</div>
+                <div className="ticket-summary-label">Cost</div>
+                <div className="ticket-summary-cost">₹{cost || 0}</div>
               </div>
             </div>
 
@@ -331,25 +288,7 @@ export default function JoinQueueModal({
               type="button"
               onClick={handleGoogleSignIn}
               disabled={isSigningIn}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '12px',
-                width: '100%',
-                background: '#fff',
-                border: '1px solid #dadce0',
-                borderRadius: 'var(--radius-md)',
-                padding: '14px',
-                color: '#3c4043',
-                fontSize: '14px',
-                fontWeight: 700,
-                cursor: isSigningIn ? 'wait' : 'pointer',
-                transition: 'all 0.25s',
-                opacity: isSigningIn ? 0.7 : 1
-              }}
-              onMouseOver={(e) => { if (!isSigningIn) e.currentTarget.style.boxShadow = '0 1px 3px rgba(60,64,67,0.3)'; }}
-              onMouseOut={(e) => e.currentTarget.style.boxShadow = 'none'}
+              className="google-signin-btn"
             >
               <svg width="18" height="18" viewBox="0 0 18 18">
                 <path fill="#4285F4" d="M17.64 9.2c0-.63-.06-1.25-.16-1.84H9v3.47h4.84c-.21 1.12-.84 2.07-1.8 2.7l2.8 2.17c1.63-1.51 2.8-3.73 2.8-6.5z"/>
@@ -360,7 +299,7 @@ export default function JoinQueueModal({
               <span>{isSigningIn ? 'Connecting to Google...' : 'Sign in with Google'}</span>
             </button>
 
-            <p style={{ fontSize: '10px', color: 'var(--color-text-muted)', textAlign: 'center', lineHeight: '1.4' }}>
+            <p className="google-auth-notice">
               You'll be securely signed in via your Google account. If a popup doesn't open, you'll be redirected to Google's login page automatically.
             </p>
 

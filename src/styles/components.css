@@ -1,4 +1,6 @@
-/* C:\Users\himanshu\.gemini\antigravity\scratch\barber-queue-app\src\styles\components.css */
+/* ==========================================================================
+   TrimTime Component Stylesheet
+   ========================================================================== */
 
 /* Main Container - Fully Fluid for Desktop/Laptop, Centered for Mobile */
 .dashboard-container {
@@ -812,4 +814,825 @@ button:active, .tab-pill:active, .icon-btn:active {
   .mobile-layout {
     display: block;
   }
+}
+
+
+/* ==========================================================================
+   Dedicated Component Styles & Layout Utilities
+   ========================================================================== */
+
+/* --- Customer Live Tracking Banner --- */
+.live-tracking-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 12px 20px;
+  margin-top: -8px;
+}
+
+.live-tracking-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.live-tracking-icon {
+  font-size: 20px;
+}
+
+.live-tracking-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-gold);
+}
+
+.live-tracking-subtitle {
+  font-size: 11px;
+  color: var(--color-text-secondary);
+}
+
+.live-tracking-input {
+  max-width: 280px;
+  padding: 8px 12px;
+  font-size: 13px;
+}
+
+/* --- Header Component Utilities --- */
+.shop-status-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-right: 12px;
+}
+
+.status-dot-sm {
+  position: relative;
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+}
+
+.shop-status-text {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.shop-status-text.open {
+  color: var(--color-accent-green);
+}
+
+.shop-status-text.paused {
+  color: var(--color-accent-amber);
+}
+
+.owner-mode-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(197, 168, 128, 0.1);
+  color: var(--color-gold);
+  padding: 6px 14px;
+  border-radius: 50px;
+  font-size: 12px;
+  font-weight: 700;
+  border: 1px solid var(--border-gold);
+  box-shadow: var(--glow-gold);
+}
+
+.logout-btn {
+  border-color: rgba(239, 68, 68, 0.3) !important;
+  color: var(--color-accent-red) !important;
+}
+
+/* --- Stats Panel Additions --- */
+.stat-value-unit {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  margin-left: 4px;
+}
+
+.stat-trend-amber {
+  color: var(--color-accent-amber);
+}
+
+.stat-trend-green {
+  color: var(--color-accent-green);
+}
+
+/* --- Active Chairs & Styling Stations --- */
+.main-stations-container {
+  width: 100%;
+}
+
+.section-title-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.section-title-count {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.chair-card-compact {
+  min-height: 190px;
+  margin: 0;
+}
+
+.btn-break-toggle {
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--border-gold);
+}
+
+.btn-break-toggle.on-break {
+  border-color: var(--color-accent-amber);
+}
+
+.customer-serving-label {
+  font-size: 10px;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.stopwatch-container {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-light);
+  padding: 4px 10px;
+  border-radius: 6px;
+  width: fit-content;
+}
+
+.stopwatch-icon {
+  opacity: 0.8;
+}
+
+.stopwatch-label {
+  font-size: 11px;
+  font-weight: 650;
+  color: var(--color-text-secondary);
+}
+
+.stopwatch-value {
+  color: var(--color-text-primary);
+  font-family: monospace;
+  font-size: 12px;
+}
+
+.btn-complete-service {
+  padding: 8px 12px;
+  font-size: 12px;
+  background: linear-gradient(135deg, var(--color-accent-green) 0%, #059669 100%);
+  color: #fff;
+  width: 100%;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+  border: none;
+  border-radius: var(--radius-sm);
+}
+
+.btn-remove-service {
+  padding: 6px 10px;
+  font-size: 11px;
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--color-accent-red, #ef4444);
+  width: 100%;
+  justify-content: center;
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  border-radius: var(--radius-sm);
+  box-shadow: none;
+  transition: all var(--transition-fast);
+}
+
+.btn-remove-service:hover {
+  background: rgba(239, 68, 68, 0.2);
+}
+
+.waitlist-column-panel {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-gold);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 120px;
+}
+
+.waitlist-column-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-gold);
+  padding-bottom: 6px;
+  margin-bottom: 2px;
+}
+
+.waitlist-barber-title {
+  font-style: normal;
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--color-gold);
+}
+
+.waitlist-count-badge {
+  font-size: 10px;
+  color: var(--color-text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.waitlist-items-container {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  overflow-y: auto;
+  max-height: 280px;
+  padding-right: 2px;
+}
+
+.badge-cost {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--color-accent-green);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+
+.badge-my-ticket {
+  background: var(--color-gold);
+  color: var(--bg-primary);
+  font-size: 8px;
+  font-weight: 800;
+  padding: 1px 3px;
+  border-radius: 2px;
+  text-transform: uppercase;
+}
+
+.badge-tracked {
+  background: #00d2ff;
+  color: var(--bg-primary);
+  font-size: 8px;
+  font-weight: 800;
+  padding: 1px 4px;
+  border-radius: 2px;
+  text-transform: uppercase;
+  box-shadow: 0 0 6px rgba(0, 210, 255, 0.4);
+}
+
+.tag-next-available {
+  background: rgba(245, 158, 11, 0.1);
+  color: var(--color-accent-amber);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-size: 7px;
+  font-weight: 600;
+  width: fit-content;
+  text-transform: uppercase;
+}
+
+.btn-remove-queue {
+  padding: 4px;
+}
+
+.empty-queue-placeholder {
+  padding: 20px 10px;
+  color: var(--color-text-muted);
+  font-size: 11px;
+  text-align: center;
+  border: 1px dashed var(--border-gold);
+  border-radius: var(--radius-md);
+}
+
+/* --- Customer History Carousel --- */
+.history-section {
+  margin-top: 12px;
+  width: 100%;
+}
+
+.history-section-header {
+  border-bottom: 1px solid var(--border-gold);
+  padding-bottom: 12px;
+}
+
+.history-section-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--color-accent-green);
+}
+
+.history-carousel {
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  padding: 8px 2px 12px;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+
+.history-card {
+  min-width: 240px;
+  flex: 0 0 auto;
+  background: var(--bg-secondary);
+  padding: 12px 18px;
+  border: 1px solid var(--border-gold);
+  border-radius: var(--radius-md);
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition-fast);
+}
+
+.history-card:hover {
+  transform: translateY(-2px);
+}
+
+.history-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.history-card-client {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.history-card-barber {
+  font-size: 11px;
+  color: var(--color-text-secondary);
+}
+
+.history-card-barber-name {
+  color: var(--color-text-primary);
+  font-weight: 600;
+}
+
+.history-card-time {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  color: var(--color-text-muted);
+  margin-top: 4px;
+  border-top: 1px solid var(--border-light);
+  padding-top: 6px;
+}
+
+.history-empty-placeholder {
+  padding: 32px 16px;
+  color: var(--color-text-muted);
+  font-size: 12px;
+  text-align: center;
+  border: 1px dashed var(--border-gold);
+  border-radius: var(--radius-md);
+  margin: 8px 0;
+}
+
+/* --- Login Screen --- */
+.login-page-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 70vh;
+  padding: 8px;
+}
+
+.login-card {
+  max-width: 420px;
+  width: 100%;
+  padding: 32px 20px;
+  animation: slideInUp 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--shadow-md), var(--glow-gold);
+}
+
+.login-back-btn {
+  padding: 6px 12px;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 20px;
+}
+
+.login-greeting-box {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.login-icon-box {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-round);
+  background: rgba(197, 168, 128, 0.1);
+  border: 1.5px solid var(--color-gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 12px;
+  box-shadow: var(--glow-gold);
+}
+
+.login-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--color-text-primary);
+}
+
+.login-subtitle {
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  margin-top: 4px;
+}
+
+.login-error-alert {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: var(--color-accent-red);
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  font-size: 11px;
+  line-height: 1.4;
+  margin-bottom: 16px;
+  animation: pulseGlow 2s infinite ease-in-out;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.login-input-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-text-muted);
+}
+
+.login-input-field {
+  padding-left: 38px;
+  width: 100%;
+  font-size: 16px;
+}
+
+.login-submit-btn {
+  width: 100%;
+  justify-content: center;
+  padding: 12px;
+  font-size: 13px;
+  margin-top: 8px;
+}
+
+/* --- Join Queue Modal --- */
+.modal-error-alert {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: var(--color-accent-red);
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  font-size: 11px;
+  line-height: 1.4;
+  margin-bottom: 16px;
+}
+
+.input-icon-gold {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-gold);
+}
+
+.currency-prefix {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-gold);
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.input-with-icon {
+  padding-left: 42px;
+  width: 100%;
+  font-size: 16px;
+}
+
+.modal-submit-btn {
+  width: 100%;
+  justify-content: center;
+  margin-top: 20px;
+  padding: 12px;
+}
+
+.google-auth-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  animation: slideInUp 0.3s ease-out;
+}
+
+.google-auth-center {
+  text-align: center;
+  margin: 8px 0;
+}
+
+.google-icon-box {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(197, 168, 128, 0.1);
+  border: 1.5px solid var(--color-gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 12px;
+}
+
+.google-auth-heading {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--color-text-primary);
+}
+
+.google-auth-desc {
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  margin-top: 4px;
+  line-height: 1.4;
+}
+
+.ticket-summary-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ticket-summary-label {
+  font-size: 10px;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+}
+
+.ticket-summary-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.ticket-summary-cost {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-accent-green);
+}
+
+.google-signin-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  background: #fff;
+  border: 1px solid #dadce0;
+  border-radius: var(--radius-md);
+  padding: 14px;
+  color: #3c4043;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.google-signin-btn:hover:not(:disabled) {
+  box-shadow: 0 1px 3px rgba(60, 64, 67, 0.3);
+}
+
+.google-signin-btn:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
+.google-auth-notice {
+  font-size: 10px;
+  color: var(--color-text-muted);
+  text-align: center;
+  line-height: 1.4;
+}
+
+/* --- Admin Panel --- */
+.admin-section {
+  margin-top: 12px;
+}
+
+.admin-section-header {
+  border-bottom: 1px solid var(--color-gold);
+}
+
+.admin-header-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--color-gold);
+}
+
+.admin-badge {
+  font-size: 11px;
+  color: var(--color-accent-red);
+  font-weight: 700;
+  background: rgba(239, 68, 68, 0.1);
+  padding: 4px 10px;
+  border-radius: 50px;
+}
+
+.admin-ops-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex-grow: 1;
+  justify-content: center;
+}
+
+.btn-ops {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.status-pill {
+  font-size: 9px;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 50px;
+  margin-left: 4px;
+}
+
+.status-pill.on {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--color-accent-green);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.status-pill.off {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--color-accent-red);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.chair-remove-section {
+  margin-top: 8px;
+  border-top: 1px solid var(--border-gold);
+  padding-top: 8px;
+}
+
+.chair-remove-label {
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  display: block;
+  margin-bottom: 6px;
+}
+
+.chair-remove-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.btn-remove-chair {
+  padding: 3px 8px;
+  font-size: 10px;
+}
+
+.revenue-stat-box {
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  border-radius: 8px;
+  padding: 12px;
+  text-align: center;
+}
+
+.revenue-stat-label {
+  font-size: 10px;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.revenue-stat-amount {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--color-accent-green);
+  font-family: 'Outfit', sans-serif;
+  margin-top: 2px;
+}
+
+.revenue-stat-sub {
+  font-size: 9px;
+  color: var(--color-text-muted);
+  margin-top: 2px;
+}
+
+.chair-breakdown-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.chair-breakdown-title {
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  font-weight: 600;
+}
+
+.chair-earnings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 110px;
+  overflow-y: auto;
+}
+
+.chair-earning-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--bg-secondary);
+  padding: 6px 10px;
+  border-radius: 4px;
+  border: 1px solid var(--border-light);
+}
+
+.chair-earning-name {
+  font-weight: 600;
+  font-size: 11px;
+  color: var(--color-text-primary);
+}
+
+.chair-earning-cuts {
+  font-size: 9px;
+  color: var(--color-text-muted);
+}
+
+.chair-earning-val {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-gold);
+}
+
+.chair-group-header {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-gold);
+  border-bottom: 1px dashed rgba(197, 168, 128, 0.3);
+  padding-bottom: 4px;
+  margin-bottom: 6px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.queue-item-card.is-tracked {
+  border: 1.5px solid #00d2ff;
+  box-shadow: 0 0 12px rgba(0, 210, 255, 0.25);
+}
+
+.queue-item-card.is-my-ticket {
+  border: 1.5px solid var(--color-gold);
+  box-shadow: 0 0 10px rgba(197, 168, 128, 0.1);
+}
+
+.queue-item-card.is-shared {
+  border: 1px dashed rgba(255, 255, 255, 0.15);
 }
