@@ -55,7 +55,7 @@ function ChairCard({ chair, isAdmin, onCompleteCut, onToggleBreak, onRemoveWitho
         <div className="chair-header-actions" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           {/* Status badge - visible to both Customer and Owner */}
           <span className={`chair-status-pill ${isBreak ? 'pill-break' : customer ? 'pill-busy' : 'pill-free'}`}>
-            {isBreak ? 'â˜• On Break' : customer ? 'âœ‚ï¸ In Service' : 'ðŸŸ¢ Free'}
+            {isBreak ? 'On Break' : customer ? 'In Service' : 'Free'}
           </span>
 
           {/* Owner Break Button in Header (when chair is empty) */}
@@ -124,7 +124,7 @@ function ChairCard({ chair, isAdmin, onCompleteCut, onToggleBreak, onRemoveWitho
               <div className="chair-break-box">
                 <Coffee size={28} className="break-icon-amber" />
                 <span className="break-title-text">Barber on Short Break</span>
-                <span className="break-sub-text">Chair is paused Â· Not accepting next in line</span>
+                <span className="break-sub-text">Chair is paused &middot; Not accepting next in line</span>
                 {isAdmin && (
                   <button
                     onClick={() => onToggleBreak(chair.id)}
@@ -316,7 +316,7 @@ export default function ActiveChairs({
                                 </span>
                                 {isAdmin && customer.cost > 0 && (
                                   <span className="badge-cost">
-                                    Ã¢â€šÂ¹{customer.cost}
+                                    {'\u20b9'}{customer.cost}
                                   </span>
                                 )}
                                 {isMyTicket && (
