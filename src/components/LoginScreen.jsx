@@ -30,14 +30,16 @@ export default function LoginScreen({ onLoginSuccess, onBackToCustomer }) {
           <span>Back to Waitlist</span>
         </button>
 
-        {/* Logo and Greeting */}
+        {/* Zone A Logo and Greeting */}
         <div className="login-greeting-box">
-          <div className="login-icon-box">
-            <Lock size={20} className="text-gold" />
+          <div className="za-logo-mark" style={{ margin: '0 auto 12px', width: '56px', height: '56px', fontSize: '20px' }}>
+            <span className="za-logo-z">Z</span>
+            <span className="za-logo-a">A</span>
           </div>
-          <h2 className="login-title">Owner Portal</h2>
+          <h2 className="login-title login-brand-name">Zone A Salon</h2>
+          <p className="login-subtitle" style={{ color: 'var(--color-gold)', fontSize: '10px', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: '4px' }}>Hair | Beauty | Makeover</p>
           <p className="login-subtitle">
-            Please authenticate to access shop administration.
+            Staff login — Owner Portal
           </p>
         </div>
 

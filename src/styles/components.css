@@ -64,41 +64,77 @@ button:active, .tab-pill:active, .icon-btn:active {
   gap: 16px;
 }
 
-.barber-pole-icon {
-  width: 20px;
+/* Zone A — ZA Monogram Logo Badge */
+.za-logo-mark {
+  width: 52px;
   height: 52px;
-  border-radius: 4px;
-  border: 2px solid var(--color-gold);
-  background: repeating-linear-gradient(
-    45deg,
-    #c42e2e,
-    #c42e2e 10px,
-    #f8f9fa 10px,
-    #f8f9fa 20px,
-    #1d4ed8 20px,
-    #1d4ed8 30px,
-    #f8f9fa 30px,
-    #f8f9fa 40px
-  );
-  background-size: 100px 100px;
-  animation: spinBarberPole 3s linear infinite;
-  box-shadow: 0 0 12px rgba(197, 168, 128, 0.3);
+  border-radius: 8px;
+  background: linear-gradient(135deg, #D4AF37 0%, #8B6914 50%, #D4AF37 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.4), inset 0 1px 0 rgba(255,255,255,0.3);
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
-.header-title-area h1 {
-  font-size: 28px;
+.za-logo-z {
+  font-family: 'Outfit', sans-serif;
+  font-size: 22px;
   font-weight: 800;
-  background: linear-gradient(135deg, var(--color-text-primary) 30%, var(--color-gold) 100%);
+  color: #0A0A0A;
+  line-height: 1;
+  letter-spacing: -2px;
+  margin-right: -4px;
+}
+
+.za-logo-a {
+  font-family: 'Outfit', sans-serif;
+  font-size: 22px;
+  font-weight: 800;
+  color: #0A0A0A;
+  line-height: 1;
+}
+
+/* Header Brand Name */
+.header-title-area {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.header-salon-label {
+  font-size: 10px;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-weight: 500;
+}
+
+.header-brand-name {
+  font-size: 24px !important;
+  font-weight: 800;
+  background: linear-gradient(135deg, #F5E6A3 0%, #D4AF37 50%, #A88B28 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  line-height: 1.1;
+  letter-spacing: 0.02em;
 }
 
-.header-title-area span {
-  font-size: 11px;
-  color: var(--color-text-secondary);
+.header-brand-sub {
+  font-size: 14px;
+  font-weight: 400;
+  opacity: 0.8;
+}
+
+.header-tagline {
+  font-size: 10px;
+  color: var(--color-gold);
+  letter-spacing: 0.25em;
   text-transform: uppercase;
-  letter-spacing: 0.15em;
-  font-weight: 600;
+  font-weight: 500;
+  opacity: 0.75;
 }
 
 .header-actions {
@@ -1738,4 +1774,133 @@ button:active, .tab-pill:active, .icon-btn:active {
   border-left: 2px solid var(--color-gold);
   border-radius: 0 6px 6px 0;
   line-height: 1.5;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ZONE A UNISEX SALON — Brand Overrides & Luxury Styling
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Gold corner decoration on glass panels (like the menu card borders) ── */
+.glass-panel {
+  position: relative;
+}
+
+.glass-panel::before,
+.glass-panel::after {
+  content: '';
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+/* Top-left corner */
+.glass-panel::before {
+  top: 8px;
+  left: 8px;
+  border-top: 1.5px solid var(--color-gold);
+  border-left: 1.5px solid var(--color-gold);
+}
+
+/* Bottom-right corner */
+.glass-panel::after {
+  bottom: 8px;
+  right: 8px;
+  border-bottom: 1.5px solid var(--color-gold);
+  border-right: 1.5px solid var(--color-gold);
+}
+
+/* ── Section titles — gold gradient like menu card headings ── */
+.section-title {
+  background: linear-gradient(135deg, #F5E6A3 0%, #D4AF37 60%, #A88B28 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+/* ── Admin section header override ── */
+.admin-section-header {
+  border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+  padding-bottom: 14px;
+  margin-bottom: 4px;
+}
+
+/* ── Buttons — gold primary ── */
+.btn-primary {
+  background: linear-gradient(135deg, #D4AF37 0%, #A88B28 100%) !important;
+  color: #0A0A0A !important;
+  font-weight: 700 !important;
+  border: none !important;
+  box-shadow: 0 4px 16px rgba(212, 175, 55, 0.35) !important;
+  letter-spacing: 0.03em;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #E8C84A 0%, #C9A227 100%) !important;
+  box-shadow: 0 6px 22px rgba(212, 175, 55, 0.5) !important;
+  transform: translateY(-1px);
+}
+
+/* ── Stats panel — gold accent ── */
+.stat-value {
+  color: var(--color-gold) !important;
+}
+
+/* ── Queue ticket highlight — Zone A gold ── */
+.my-ticket-highlight {
+  border-color: var(--color-gold) !important;
+  box-shadow: 0 0 12px rgba(212, 175, 55, 0.3) !important;
+}
+
+/* ── Admin badge — gold on dark ── */
+.admin-badge {
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.15), rgba(212, 175, 55, 0.05));
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  color: var(--color-gold);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  padding: 4px 10px;
+  border-radius: 4px;
+}
+
+/* ── Revenue stat box — Zone A gold number ── */
+.revenue-stat-amount {
+  font-size: 32px !important;
+  font-weight: 800;
+  background: linear-gradient(135deg, #F5E6A3, #D4AF37);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* ── Zone A footer tagline in tracking panel ── */
+.live-tracking-title {
+  color: var(--color-gold) !important;
+}
+
+/* ── Login screen branding ── */
+.login-brand-name {
+  background: linear-gradient(135deg, #F5E6A3 0%, #D4AF37 60%, #A88B28 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* ── Scrollbar — gold tinted ── */
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-gold) !important;
+}
+
+/* ── Zone A diamond sparkle watermark (decorative) ── */
+.dashboard-container::before {
+  content: '◆';
+  position: fixed;
+  bottom: 20px;
+  right: 24px;
+  font-size: 12px;
+  color: var(--color-gold);
+  opacity: 0.15;
+  pointer-events: none;
+  z-index: 0;
 }

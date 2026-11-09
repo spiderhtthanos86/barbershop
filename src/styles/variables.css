@@ -1,61 +1,66 @@
-/* C:\Users\himanshu\.gemini\antigravity\scratch\barber-queue-app\src\styles\variables.css */
+/* Zone A Unisex Salon — Design Tokens */
 
 :root {
-  /* Color Palette - Vibrant Cosmic Dark Theme */
-  --bg-primary: #05060F;
-  --bg-secondary: #0C0E1F;
-  --bg-tertiary: #141733;
-  
-  --color-gold: #C5A880;
-  --color-gold-hover: #D8B78D;
-  --color-gold-light: #F4EAD4;
-  --color-text-primary: #F3F4F6;
-  --color-text-secondary: #9CA3AF;
-  --color-text-muted: #4B5563;
-  
-  --color-accent-green: #10B981;
-  --color-accent-green-glow: rgba(16, 185, 129, 0.25);
-  --color-accent-amber: #F59E0B;
-  --color-accent-amber-glow: rgba(245, 158, 11, 0.25);
-  --color-accent-red: #EF4444;
-  --color-accent-red-glow: rgba(239, 68, 68, 0.25);
-  
-  /* Barber Card Specific Vibrant Theme Colors */
-  --theme-blue-primary: #3B82F6;
-  --theme-blue-gradient: linear-gradient(135deg, #3B82F6 0%, #06B6D4 100%);
-  --theme-blue-glow: 0 8px 24px rgba(59, 130, 246, 0.35);
-  
-  --theme-orange-primary: #F59E0B;
-  --theme-orange-gradient: linear-gradient(135deg, #F59E0B 0%, #EF4444 100%);
-  --theme-orange-glow: 0 8px 24px rgba(245, 158, 11, 0.35);
-  
-  --theme-purple-primary: #8B5CF6;
-  --theme-purple-gradient: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%);
-  --theme-purple-glow: 0 8px 24px rgba(139, 92, 246, 0.35);
+  /* ── Backgrounds — Pure black luxury like the menu cards ── */
+  --bg-primary: #0A0A0A;
+  --bg-secondary: #111111;
+  --bg-tertiary: #1A1A1A;
 
-  /* Glassmorphism & Borders */
-  --border-gold: rgba(197, 168, 128, 0.15);
-  --border-gold-focus: rgba(197, 168, 128, 0.4);
-  --border-light: rgba(255, 255, 255, 0.08);
-  --glass-bg: rgba(12, 14, 31, 0.75);
-  --glass-blur: blur(16px);
-  
-  /* Shadows & Glows */
-  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.4);
-  --shadow-md: 0 12px 36px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.08);
-  --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.8), inset 0 1px 1px rgba(255, 255, 255, 0.1);
-  --glow-gold: 0 0 25px rgba(197, 168, 128, 0.18);
-  --glow-gold-strong: 0 0 35px rgba(197, 168, 128, 0.4);
-  --glow-green: 0 0 25px rgba(16, 185, 129, 0.3);
-  
-  /* Transitions */
+  /* ── Gold palette — exact match to Zone A menu card gold ── */
+  --color-gold: #D4AF37;
+  --color-gold-hover: #E8C84A;
+  --color-gold-light: #F5E6A3;
+  --color-gold-dim: #A88B28;
+
+  /* ── Text ── */
+  --color-text-primary: #F5F5F0;
+  --color-text-secondary: #A0998A;
+  --color-text-muted: #5A5248;
+
+  /* ── Accent colors ── */
+  --color-accent-green: #4CAF7D;
+  --color-accent-green-glow: rgba(76, 175, 125, 0.25);
+  --color-accent-amber: #D4AF37;
+  --color-accent-amber-glow: rgba(212, 175, 55, 0.25);
+  --color-accent-red: #E05252;
+  --color-accent-red-glow: rgba(224, 82, 82, 0.25);
+
+  /* ── Chair card themes — all gold-toned for luxury feel ── */
+  --theme-blue-primary: #D4AF37;
+  --theme-blue-gradient: linear-gradient(135deg, #D4AF37 0%, #A88B28 100%);
+  --theme-blue-glow: 0 8px 24px rgba(212, 175, 55, 0.3);
+
+  --theme-orange-primary: #C9A227;
+  --theme-orange-gradient: linear-gradient(135deg, #C9A227 0%, #8B6914 100%);
+  --theme-orange-glow: 0 8px 24px rgba(201, 162, 39, 0.3);
+
+  --theme-purple-primary: #BFA050;
+  --theme-purple-gradient: linear-gradient(135deg, #BFA050 0%, #7A6030 100%);
+  --theme-purple-glow: 0 8px 24px rgba(191, 160, 80, 0.3);
+
+  /* ── Glass & Borders — gold-tinted glass panels ── */
+  --border-gold: rgba(212, 175, 55, 0.2);
+  --border-gold-focus: rgba(212, 175, 55, 0.5);
+  --border-light: rgba(255, 255, 255, 0.06);
+  --glass-bg: rgba(15, 13, 8, 0.80);
+  --glass-blur: blur(20px);
+
+  /* ── Shadows & Glows ── */
+  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.6);
+  --shadow-md: 0 12px 36px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(212, 175, 55, 0.08);
+  --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.9), inset 0 1px 1px rgba(212, 175, 55, 0.1);
+  --glow-gold: 0 0 25px rgba(212, 175, 55, 0.2);
+  --glow-gold-strong: 0 0 40px rgba(212, 175, 55, 0.45);
+  --glow-green: 0 0 25px rgba(76, 175, 125, 0.3);
+
+  /* ── Transitions ── */
   --transition-fast: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   --transition-normal: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   --transition-slow: 0.7s cubic-bezier(0.4, 0, 0.2, 1);
-  
-  /* Border Radius */
-  --radius-sm: 8px;
-  --radius-md: 16px;
-  --radius-lg: 24px;
+
+  /* ── Border Radius ── */
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
   --radius-round: 50%;
 }
