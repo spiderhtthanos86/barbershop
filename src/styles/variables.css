@@ -1,10 +1,10 @@
-/* Zone A Unisex Salon — Design Tokens */
+﻿/* Zone A Unisex Salon — Design Tokens */
 
 :root {
   /* ── Backgrounds — Lighter dark for better readability ── */
-  --bg-primary: #121215;
-  --bg-secondary: #1A1A1F;
-  --bg-tertiary: #222228;
+  --bg-primary: transparent;
+  --bg-secondary: rgba(10, 10, 12, 0.72);
+  --bg-tertiary: rgba(18, 18, 22, 0.78);
 
   /* ── Gold palette ── */
   --color-gold: #D4AF37;
@@ -13,9 +13,9 @@
   --color-gold-dim: #A88B28;
 
   /* ── Text — brighter for better visibility ── */
-  --color-text-primary: #F8F8F5;
-  --color-text-secondary: #B5AFA2;
-  --color-text-muted: #706860;
+  --color-text-primary: #FFFFFF;
+  --color-text-secondary: #D4CCBF;
+  --color-text-muted: #9A9088;
 
   /* ── Accent colors ── */
   --color-accent-green: #4CAF7D;
@@ -39,10 +39,10 @@
   --theme-purple-glow: 0 8px 24px rgba(191, 160, 80, 0.3);
 
   /* ── Glass & Borders — more visible panels ── */
-  --border-gold: rgba(212, 175, 55, 0.22);
+  --border-gold: rgba(212, 175, 55, 0.30);
   --border-gold-focus: rgba(212, 175, 55, 0.55);
   --border-light: rgba(255, 255, 255, 0.1);
-  --glass-bg: rgba(22, 20, 18, 0.82);
+  --glass-bg: rgba(10, 9, 8, 0.70);
   --glass-blur: blur(20px);
 
   /* ── Shadows & Glows ── */
