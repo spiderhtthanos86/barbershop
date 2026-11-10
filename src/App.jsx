@@ -1,4 +1,4 @@
-
+﻿
 import React, { useState, useEffect, useRef } from 'react';
 import Header from './components/Header';
 import StatsPanel from './components/StatsPanel';
@@ -108,7 +108,6 @@ export default function App() {
   const [isShopOpen, setIsShopOpen] = useState(true);
   const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
   const [myTicketId, setMyTicketId] = useState(localStorage.getItem('myTicketId') || '');
-  const [trackName, setTrackName] = useState(localStorage.getItem('trimtime_track_name') || '');
   const [allowCustomerJoin, setAllowCustomerJoin] = useState(false);
   const [requireAuth, setRequireAuth] = useState(true);
 
@@ -236,9 +235,6 @@ export default function App() {
           authorizedBy: email
         });
 
-        // Set tracking so user sees themselves highlighted
-        setTrackName(pending.name);
-        localStorage.setItem('trimtime_track_name', pending.name);
         setMyTicketId(clientId);
 
         console.log('Successfully added to queue after redirect:', pending.name);
@@ -303,10 +299,6 @@ export default function App() {
   // Add client to the queue (seating them immediately if an eligible chair is open)
   const handleJoinQueue = async (customerData, barbersList = barbers) => {
     try {
-      // Auto-set the tracking name for the user
-      setTrackName(customerData.name);
-      localStorage.setItem('trimtime_track_name', customerData.name);
-
       if (isShopOpen) {
         // Scan for active, vacant chairs that fit customer preference
         const freeBarber = barbersList.find(b => 
@@ -585,13 +577,10 @@ export default function App() {
   // Reset Completed cuts history log — only deletes TODAY's entries from 'history'
   // allTimeHistory is NEVER touched here (permanent Excel archive)
   const handleResetStats = async () => {
-    if (!window.confirm("Are you sure you want to clear today's completed log from the screen?")) return;
+    if (!window.confirm("Clear ALL history entries from the served log? This only clears the 'history' collection — your All-Time archive is never affected.")) return;
     try {
-      const todayStr = new Date().toDateString();
-      const todayItems = history.filter(
-        item => new Date(item.completedAt).toDateString() === todayStr
-      );
-      for (const item of todayItems) {
+      // Delete every doc in 'history' collection (all days), never touches allTimeHistory
+      for (const item of history) {
         await deleteDoc(doc(db, 'history', item.id));
       }
     } catch (err) {
@@ -650,31 +639,23 @@ export default function App() {
             history={history}
           />
 
-          {/* Customer Self-Tracking Input Banner */}
-          {currentView === 'customer' && (
-            <div className="glass-panel live-tracking-panel">
-              <div className="live-tracking-info">
-                <span className="live-tracking-icon">🔍</span>
+          {/* JOIN WAITLIST — Prominent CTA Banner for Customer View */}
+          {currentView === 'customer' && allowCustomerJoin && (
+            <div className="join-cta-banner" onClick={() => setIsJoinModalOpen(true)}>
+              <div className="join-cta-left">
+                <div className="join-cta-pulse" />
                 <div>
-                  <div className="live-tracking-title">Track Your Turn Live</div>
-                  <div className="live-tracking-subtitle">Enter your name to highlight your ticket in the queues below</div>
+                  <div className="join-cta-title">Ready for your turn?</div>
+                  <div className="join-cta-sub">Tap to join the live waitlist — skip the wait at the door</div>
                 </div>
               </div>
-              <input
-                type="text"
-                className="form-input live-tracking-input"
-                
-                placeholder="Enter your name..."
-                value={trackName}
-                onChange={(e) => {
-                  setTrackName(e.target.value);
-                  localStorage.setItem('trimtime_track_name', e.target.value);
-                }}
-              />
+              <button className="join-cta-btn" onClick={() => setIsJoinModalOpen(true)}>
+                Join Waitlist
+              </button>
             </div>
           )}
 
-          {/* Primary Main Stations viewport */}
+          {/* PRIMARY MAIN STATIONS VIEWPORT */}
           <main className="main-stations-container">
             <ActiveChairs
               chairs={barbers}
@@ -685,7 +666,6 @@ export default function App() {
               onRemoveFromQueue={handleRemoveFromQueue}
               onRemoveWithoutService={handleRemoveWithoutService}
               myTicketId={myTicketId}
-              trackName={trackName}
             />
           </main>
 

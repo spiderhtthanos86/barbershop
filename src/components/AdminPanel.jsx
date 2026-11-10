@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { ShieldAlert, Plus, Users, Ban, RefreshCw, BarChart3, Clock, TrendingUp } from 'lucide-react';
 import ExportPanel from './ExportPanel';
 
@@ -110,7 +110,7 @@ export default function AdminPanel({
               onClick={onResetStats}
             >
               <RefreshCw size={14} />
-              <span>Clear Today's Log</span>
+              <span>Clear All History Log</span>
             </button>
           </div>
         </div>

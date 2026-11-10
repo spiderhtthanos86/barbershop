@@ -160,8 +160,7 @@ export default function ActiveChairs({
   onRemoveWithoutService,
   queue,
   onRemoveFromQueue,
-  myTicketId,
-  trackName = ''
+  myTicketId
 }) {
   // Mobile Capsule Tab Selector: 'all' or specific barber id
   const [activeTab, setActiveTab] = useState('all');
@@ -277,16 +276,13 @@ export default function ActiveChairs({
                   {chairQueue.length > 0 ? (
                     chairQueue.map((customer, idx) => {
                       const isMyTicket = customer.id === myTicketId;
-                      const isTracked = trackName && customer.name.trim().toLowerCase() === trackName.trim().toLowerCase();
                       const isShared = customer.preferredBarberId === 'any';
 
-                      const itemStateClass = isTracked
-                        ? 'is-tracked'
-                        : isMyTicket
-                          ? 'is-my-ticket'
-                          : isShared
-                            ? 'is-shared'
-                            : '';
+                      const itemStateClass = isMyTicket
+                        ? 'is-my-ticket'
+                        : isShared
+                          ? 'is-shared'
+                          : '';
 
                       return (
                         <div
@@ -314,11 +310,7 @@ export default function ActiveChairs({
                                     You
                                   </span>
                                 )}
-                                {isTracked && !isMyTicket && (
-                                  <span className="badge-tracked">
-                                    You
-                                  </span>
-                                )}
+
                               </div>
 
                               {/* Shared tag */}
