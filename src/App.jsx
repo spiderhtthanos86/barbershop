@@ -645,12 +645,12 @@ export default function App() {
               <div className="join-cta-left">
                 <div className="join-cta-pulse" />
                 <div>
-                  <div className="join-cta-title">Ready for your turn?</div>
-                  <div className="join-cta-sub">Tap to join the live waitlist — skip the wait at the door</div>
+                  <div className="join-cta-title">Book Your Cut</div>
+                  <div className="join-cta-sub">Join the live waitlist — skip the wait at the door</div>
                 </div>
               </div>
               <button className="join-cta-btn" onClick={() => setIsJoinModalOpen(true)}>
-                Join Waitlist
+                <span>Book Your Cut</span>
               </button>
             </div>
           )}

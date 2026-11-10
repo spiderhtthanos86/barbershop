@@ -43,18 +43,107 @@ button:active, .tab-pill:active, .icon-btn:active {
 }
 
 /* Header Component */
+/* ═══════════════════════════════════════════
+   HEADER — Clean 2-row mobile layout
+   ═══════════════════════════════════════════ */
+
 .header-wrapper {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 16px;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 18px;
 }
 
-@media (max-width: 640px) {
+/* Row 1: logo + brand + sound btn */
+.header-row-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+/* Row 2: status + nav buttons */
+.header-row-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding-top: 2px;
+  border-top: 1px solid rgba(212,175,55,0.12);
+}
+
+/* Nav button group (Home + Staff / Logout) */
+.header-nav-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Slim nav buttons */
+.header-nav-btn {
+  background: rgba(14, 13, 11, 0.65);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(212, 175, 55, 0.28);
+  border-radius: 50px;
+  padding: 6px 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.header-nav-btn:hover {
+  border-color: rgba(212, 175, 55, 0.6);
+  color: var(--color-text-primary);
+}
+
+.header-logout-btn {
+  color: var(--color-accent-red);
+  border-color: rgba(224, 82, 82, 0.25);
+}
+
+.header-logout-btn:hover {
+  border-color: var(--color-accent-red);
+  background: rgba(224, 82, 82, 0.12);
+}
+
+/* Sound button — compact icon */
+.header-sound-btn {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+}
+
+/* Owner walk-in btn in header */
+.header-walkin-btn {
+  font-size: 12px;
+  padding: 6px 14px;
+}
+
+/* Desktop: everything in one row */
+@media (min-width: 768px) {
   .header-wrapper {
-    flex-direction: column;
-    align-items: stretch;
-    padding: 16px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    gap: 16px;
+  }
+  .header-row-top {
+    flex: 0 0 auto;
+    gap: 16px;
+  }
+  .header-row-bottom {
+    flex: 1;
+    justify-content: flex-end;
+    border-top: none;
+    padding-top: 0;
   }
 }
 
@@ -140,8 +229,7 @@ button:active, .tab-pill:active, .icon-btn:active {
 .header-actions {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  gap: 12px;
+  gap: 10px;
   flex-wrap: wrap;
 }
 
@@ -915,8 +1003,7 @@ button:active, .tab-pill:active, .icon-btn:active {
 .shop-status-badge {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-right: 12px;
+  gap: 7px;
 }
 
 .status-dot-sm {
@@ -2332,43 +2419,34 @@ button:active, .tab-pill:active, .icon-btn:active {
 }
 
 /* ═══════════════════════════════════════════════
-   JOIN WAITLIST — Prominent Customer CTA Banner
+   BOOK YOUR CUT — Premium CTA Banner
    ═══════════════════════════════════════════════ */
 
 .join-cta-banner {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  padding: 18px 24px;
-  background: linear-gradient(135deg, rgba(212,175,55,0.18) 0%, rgba(140,110,20,0.22) 100%);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1.5px solid rgba(212, 175, 55, 0.55);
-  border-radius: 16px;
-  cursor: pointer;
-  box-shadow: 0 4px 24px rgba(212,175,55,0.20), inset 0 1px 0 rgba(255,255,255,0.08);
-  transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
+  gap: 14px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  cursor: default;
   animation: slideInUp 0.4s ease-out;
-}
-
-.join-cta-banner:hover {
-  border-color: rgba(212, 175, 55, 0.85);
-  box-shadow: 0 8px 36px rgba(212,175,55,0.35), inset 0 1px 0 rgba(255,255,255,0.12);
-  transform: translateY(-1px);
 }
 
 .join-cta-left {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
   flex: 1;
   min-width: 0;
 }
 
+/* Pulsing live dot */
 .join-cta-pulse {
-  width: 14px;
-  height: 14px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
   background: var(--color-gold);
   flex-shrink: 0;
@@ -2384,59 +2462,75 @@ button:active, .tab-pill:active, .icon-btn:active {
 
 .join-cta-title {
   font-family: 'Outfit', sans-serif;
-  font-size: 16px;
-  font-weight: 800;
-  color: #FFFFFF;
-  text-shadow: 0 1px 6px rgba(0,0,0,0.5);
-  line-height: 1.2;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-gold);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  opacity: 0.85;
 }
 
 .join-cta-sub {
-  font-size: 12px;
-  color: rgba(255,255,255,0.72);
-  margin-top: 2px;
-  text-shadow: 0 1px 4px rgba(0,0,0,0.4);
+  font-size: 11px;
+  color: rgba(255,255,255,0.50);
+  margin-top: 1px;
 }
 
+/* THE MAIN BUTTON — full-width gold, prominent */
 .join-cta-btn {
-  background: linear-gradient(135deg, #D4AF37 0%, #A88B28 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  background: linear-gradient(135deg, #D4AF37 0%, #B8961E 50%, #D4AF37 100%);
+  background-size: 200% 200%;
   color: #0A0A0C;
   font-family: 'Outfit', sans-serif;
-  font-size: 15px;
-  font-weight: 800;
+  font-size: 17px;
+  font-weight: 900;
   border: none;
-  border-radius: 50px;
-  padding: 12px 28px;
+  border-radius: 14px;
+  padding: 16px 24px;
   cursor: pointer;
-  white-space: nowrap;
-  flex-shrink: 0;
-  box-shadow: 0 4px 16px rgba(212,175,55,0.40);
-  transition: all 0.2s ease;
-  letter-spacing: 0.01em;
+  letter-spacing: 0.03em;
+  box-shadow:
+    0 4px 20px rgba(212,175,55,0.45),
+    0 1px 0 rgba(255,255,255,0.3) inset;
+  transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
+  animation: ctaShimmer 3s ease-in-out infinite;
+}
+
+@keyframes ctaShimmer {
+  0%, 100% { background-position: 0% 50%; box-shadow: 0 4px 20px rgba(212,175,55,0.40), 0 1px 0 rgba(255,255,255,0.3) inset; }
+  50%       { background-position: 100% 50%; box-shadow: 0 6px 30px rgba(212,175,55,0.65), 0 1px 0 rgba(255,255,255,0.3) inset; }
 }
 
 .join-cta-btn:hover {
-  filter: brightness(1.12);
-  box-shadow: 0 6px 24px rgba(212,175,55,0.55);
-  transform: scale(1.03);
+  filter: brightness(1.08);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 36px rgba(212,175,55,0.60), 0 1px 0 rgba(255,255,255,0.3) inset;
 }
 
 .join-cta-btn:active {
-  transform: scale(0.97) !important;
+  transform: scale(0.97) translateY(0) !important;
 }
 
-@media (max-width: 480px) {
-  .join-cta-banner {
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 16px 18px;
-    gap: 14px;
-  }
+/* Wrapper: stack label row above the big button */
+.join-cta-banner {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+}
+
+.join-cta-left {
+  justify-content: center;
+}
+
+@media (min-width: 768px) {
   .join-cta-btn {
-    width: 100%;
-    text-align: center;
-    padding: 14px 20px;
     font-size: 16px;
+    padding: 14px 24px;
+    border-radius: 12px;
   }
-  .join-cta-title { font-size: 15px; }
 }
